@@ -1,0 +1,3 @@
+build/
+src/zig-cache/
+src/.vscode/
