@@ -1,4 +1,4 @@
-example_* files based on sokol-examples which are under the MIT lisense below.
+example_* files based on sokol-examples which are under the MIT license below.
 
 
 MIT License
