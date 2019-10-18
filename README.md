@@ -15,7 +15,7 @@ If you are visiting this page in the future you may want to check the status of 
 
 Clone
 
-    git clone --recurse-submodules https://github.com/Srekel/zag.git
+    git clone --recurse-submodules https://github.com/jeffkdev/sokol-zig-examples.git
 
 Download and add zig.exe to path (see zig link above)
     
@@ -29,7 +29,7 @@ Run application in the future using:
     zig build run
     
    
-A bit hacky at the moment, but to run different examples change the main file in the build.zig file:
+A bit hacky, but to run different examples change the main file in the build.zig file:
     const mainFile = "example_imgui.zig"; 
 
 valid files are:
@@ -43,33 +43,34 @@ valid files are:
 ![example_triangle.zig](docs/triangle.png)
   
   example_sound.zig
+  
 (plays beeping sound, blank screen)
   
 
 ## Debugging
 
-Debugging and breakpoints work in Visual Studio Code. Ideally there would be a launch config for each example, but right now it just runs the program.exe that is created from the zig build. Two files are required in the .vscode folder (not included in repo):
+Debugging and breakpoints are working in Visual Studio Code. Ideally there would be a launch config for each example, but right now it just runs the program.exe that is created from the zig build. Two files are required in the .vscode folder (not included in repo):
 
 ### tasks.json
 
-{
-  "tasks":[
-   {
-    "group":"build",
-    "problemMatcher":[
-     "$msCompile"
+  {
+    "tasks":[
+     {
+      "group":"build",
+      "problemMatcher":[
+       "$msCompile"
+      ],
+      "command":"zig build",
+      "label":"zig_build"
+     },
     ],
-    "command":"zig build",
-    "label":"zig_build"
-   },
-  ],
-  "presentation":{
-   "reveal":"always",
-   "clear":true
-  },
-  "version":"2.0.0",
-  "type":"shell"
- }
+    "presentation":{
+     "reveal":"always",
+     "clear":true
+    },
+    "version":"2.0.0",
+    "type":"shell"
+   }
  
 ### launch.json
 
@@ -92,3 +93,5 @@ Debugging and breakpoints work in Visual Studio Code. Ideally there would be a l
  }
  
 ## License
+
+Example files are based on the sokol-examples so they are probably considered a derivate work, so the MIT license will carry on to those as well.
