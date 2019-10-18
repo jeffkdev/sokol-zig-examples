@@ -3,12 +3,12 @@
 Some of the Sokol examples running in Zig. Intended to be used as a reference or starting point for anyone looking to use Zig make games. Only working in Windows at the moment, but with some effort could be modified to target other platforms.
 
 See
-    https://github.com/floooh/sokol
-    https://github.com/floooh/sokol-samples
-    https://github.com/ziglang/zig
+   - https://github.com/floooh/sokol
+   - https://github.com/floooh/sokol-samples
+   - https://github.com/ziglang/zig
     
 If you are visiting this page in the future you may want to check the status of this repo by the creator of Sokol, which may or may not be more developed:
-    https://github.com/floooh/sokol-zig
+  -  https://github.com/floooh/sokol-zig
 
 
 ## Building
@@ -52,7 +52,7 @@ valid files are:
 Debugging and breakpoints are working in Visual Studio Code. Ideally there would be a launch config for each example, but right now it just runs the program.exe that is created from the zig build. Two files are required in the .vscode folder (not included in repo):
 
 ### tasks.json
-
+```
   {
     "tasks":[
      {
@@ -71,9 +71,9 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
     "version":"2.0.0",
     "type":"shell"
    }
- 
+ ```
 ### launch.json
-
+```
 {
   "version":"0.2.0",
   "configurations":[
@@ -91,7 +91,7 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
    }
   ]
  }
- 
+ ```
 ## License
 
 Example files are based on the sokol-examples so they are probably considered a derivate work, so the MIT license will carry on to those as well.
