@@ -5,7 +5,7 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-// Altered source. Added: fromQuaternion, fromAxis. Fixed: lookAt, perspective
+// Altered source. Added: fromQuaternion, fromAxis, toArray. Fixed: lookAt, perspective
 
 const std = @import("std");
 
@@ -553,6 +553,30 @@ pub const Mat4 = extern struct {
         result.fields[3][3] = 1.0;
         return result;
     }
+
+    pub fn toArray(m : Self) [16]f32 {
+     var result :[16]f32= undefined;
+      result[0] = m.fields[0][0];
+      result[1] = m.fields[0][1];
+      result[2] = m.fields[0][2];
+      result[3] = m.fields[0][3];
+
+      result[4] = m.fields[1][0];
+      result[5] = m.fields[1][1];
+      result[6] = m.fields[1][2];
+      result[7] = m.fields[1][3];
+ 
+      result[8] = m.fields[2][0];
+      result[9] = m.fields[2][1];
+      result[10] = m.fields[2][2];
+      result[11] = m.fields[2][3];
+
+      result[12] = m.fields[3][0];
+      result[13] = m.fields[3][1];
+      result[14] = m.fields[3][2];
+      result[15] = m.fields[3][3];
+      return result;
+}
 };
 
 pub fn fromAxis(radians: f32, axis: Vec3) Vec4 {

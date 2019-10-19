@@ -46,6 +46,10 @@ valid files are:
   
 (plays beeping sound, blank screen)
   
+  
+## Shaders
+
+There are two duplciate tests (example_cube_shd, example_triangle_shd) that use shaders generated from [sokol-shdc](https://github.com/floooh/sokol-tools/blob/master/docs/sokol-shdc.md) instead of manually declaring the shader description which is slower and error-prone.  However, these required some modifications to work, see notes at the bottom for example_triangle_sdh.zig for details. Since t are not automatically generated right now I left the non _sdh tests are better standalone examples.
 
 ## Debugging
 
