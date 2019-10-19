@@ -132,7 +132,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &vs_params, @sizeOf(vs_params));
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &vs_params, @sizeOf(glsl.vs_params_t));
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();
