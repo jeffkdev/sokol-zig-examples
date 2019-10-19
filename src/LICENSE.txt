@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 example_* and shader .glsl files based on sokol-examples which are under the MIT lisense below.
+=======
+example_* files based on sokol-examples which are under the MIT license below.
+>>>>>>> 4e78590984dffbdd6b37e3dfe0eeafa94c7ad4c2
 
 
 MIT License
