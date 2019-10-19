@@ -36,6 +36,9 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
+#if !defined(SOKOL_GFX_INCLUDED)
+  #error "Please include sokol_gfx.h before triangle.glsl.h"
+#endif
 #if !defined(SOKOL_SHDC_ALIGN)
   #if defined(_MSC_VER)
     #define SOKOL_SHDC_ALIGN(a) __declspec(align(a))
@@ -43,8 +46,10 @@
     #define SOKOL_SHDC_ALIGN(a) __attribute__((aligned(a)))
   #endif
 #endif
+const sg_shader_desc* triangle_shader_desc(void);
 #define ATTR_vs_position (0)
 #define ATTR_vs_color0 (1)
+#if defined(SOKOL_SHDC_IMPL)
 #if defined(SOKOL_GLCORE33)
 /*
     #version 330
@@ -151,8 +156,8 @@ static const sg_shader_desc triangle_shader_desc_glsl330 = {
   "triangle_shader", /* label */
   0, /* _end_canary */
 };
-
- const sg_shader_desc* triangle_shader_desc(void) {
+#endif /* SOKOL_GLCORE33 */
+const sg_shader_desc* triangle_shader_desc(void) {
     #if defined(SOKOL_GLCORE33)
     if (sg_query_backend() == SG_BACKEND_GLCORE33) {
         return &triangle_shader_desc_glsl330;
@@ -160,26 +165,4 @@ static const sg_shader_desc triangle_shader_desc_glsl330 = {
     #endif /* SOKOL_GLCORE33 */
     return 0; /* can't happen */
 }
-
-#endif /* SOKOL_GLCORE33 */
-
-const struct sg_shader_desc* triangle_shader_desc(void);
-
-
-// Note to reader: The shader was originally generated with a static inline definition like this at the end like this:
-
-// #endif /* SOKOL_GLCORE33 */
-// #if !defined(SOKOL_GFX_INCLUDED)
-//   #error "Please include sokol_gfx.h before triangle.glsl.h"
-// #endif
-// static inline const sg_shader_desc* triangle_shader_desc(void) {
-//     #if defined(SOKOL_GLCORE33)
-//     if (sg_query_backend() == SG_BACKEND_GLCORE33) {
-//         return &triangle_shader_desc_glsl330;
-//     }
-//     #endif /* SOKOL_GLCORE33 */
-//     return 0; /* can't happen */
-// }
-
-// However, I was not able to get this to compile (gives the error: triangle_shader_desc_glsl330 not found)
-// To fix it I removed the "static inline" and split the function into a declaration and implementation
+#endif /* SOKOL_SHDC_IMPL */

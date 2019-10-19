@@ -3,6 +3,10 @@ const c = @import("c.zig");
 const Mat4 = @import("math3d.zig").Mat4;
 const Vec3 = @import("math3d.zig").Vec3;
 const m = @import("math3d.zig");
+const glsl = @cImport({
+    @cInclude("sokol/sokol_gfx.h");
+    @cInclude("shaders/cube.glsl.h");
+});
 
 fn zero_struct(comptime T: type) T {
     var variable: T = undefined;
@@ -86,40 +90,8 @@ export fn init() void {
     buffer_desc.content = &indices[0];
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
-    var shader_desc = zero_struct(c.sg_shader_desc);
-
-    shader_desc.vs.source =
-        c\\#version 330
-        c\\
-        c\\uniform mat4 mvp;
-        c\\layout(location = 0) in vec4 position;
-        c\\out vec4 color;
-        c\\layout(location = 1) in vec4 color0;
-        c\\
-        c\\void main()
-        c\\{
-        c\\    gl_Position = mvp * position;
-        c\\    color = color0;
-        c\\}
-    ;
-    shader_desc.fs.source =
-        c\\#version 330
-        c\\
-        c\\layout(location = 0) out vec4 frag_color;
-        c\\in vec4 color;
-        c\\
-        c\\void main()
-        c\\{
-        c\\    frag_color = color;
-        c\\}
-    ;
-    shader_desc.attrs = [_]c.sg_shader_attr_desc{
-        c.sg_shader_attr_desc{ .name = c"position", .sem_name = c"TEXCOORD", .sem_index = 0 },
-        c.sg_shader_attr_desc{ .name = c"color0", .sem_name = c"TEXCOORD", .sem_index = 1 },
-    };
-    shader_desc.vs.uniform_blocks[0].size = @sizeOf(f32) * 16;
-    shader_desc.vs.uniform_blocks[0].uniforms[0] = c.sg_shader_uniform_desc{ .name = c"mvp", .type = c.SG_UNIFORMTYPE_MAT4, .array_count = 0 };
-    const shader = c.sg_make_shader(&shader_desc);
+    const shader_desc = @ptrCast([*c]const c.sg_shader_desc, glsl.cube_shader_desc());
+    const shader = c.sg_make_shader(shader_desc);
     var pipeline_desc = zero_struct(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
     pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
@@ -151,11 +123,14 @@ export fn update() void {
 
     var model = Mat4.mul(rxm, rym);
     var mvp = Mat4.mul(model, view_proj);
+    var vs_params = glsl.vs_params_t{
+        .mvp = mvp.toArray(),
+    };
 
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &mvp.fields[0], @sizeOf(f32) * 16);
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &vs_params, @sizeOf(glsl.vs_params_t));
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();

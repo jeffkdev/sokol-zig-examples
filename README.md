@@ -49,7 +49,13 @@ valid files are:
   
 ## Shaders
 
-There are two duplciate tests (example_cube_shd, example_triangle_shd) that use shaders generated from [sokol-shdc](https://github.com/floooh/sokol-tools/blob/master/docs/sokol-shdc.md) instead of manually declaring the shader description which is slower and error-prone.  However, these required some modifications to work, see notes at the bottom for example_triangle_sdh.zig for details. Since the glsl.h files are not automatically generated right now I left the non _sdh tests are better standalone examples.
+The "glsl.h" shader files are generates from the ".glsl" files using. [sokol-shdc](https://github.com/floooh/sokol-tools). Since the glsl.h files are not created automatically when building right now they are checked in as well. If you modify the files, they can be re-generated using the command:
+
+```
+sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl330 --format sokol_impl
+sokol-shdc.exe --input triangle.glsl --output triangle.glsl.h --slang glsl330 --format sokol_impl
+```
+The "--format sokol_impl" is important, otherwise they will be generated with inline declarations which caused issues using them in Zig. See the [documentation](https://github.com/floooh/sokol-tools/blob/master/docs/sokol-shdc.md) for more command line references.
 
 ## Debugging
 

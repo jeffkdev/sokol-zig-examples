@@ -46,6 +46,9 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
+#if !defined(SOKOL_GFX_INCLUDED)
+  #error "Please include sokol_gfx.h before cube.glsl.h"
+#endif
 #if !defined(SOKOL_SHDC_ALIGN)
   #if defined(_MSC_VER)
     #define SOKOL_SHDC_ALIGN(a) __declspec(align(a))
@@ -53,6 +56,7 @@
     #define SOKOL_SHDC_ALIGN(a) __attribute__((aligned(a)))
   #endif
 #endif
+const sg_shader_desc* cube_shader_desc(void);
 #define ATTR_vs_position (0)
 #define ATTR_vs_color0 (1)
 #define SLOT_vs_params (0)
@@ -61,6 +65,7 @@ SOKOL_SHDC_ALIGN(16) typedef struct vs_params_t {
     float mvp[16];
 } vs_params_t;
 #pragma pack(pop)
+#if defined(SOKOL_SHDC_IMPL)
 #if defined(SOKOL_GLCORE33)
 /*
     #version 330
@@ -77,7 +82,7 @@ SOKOL_SHDC_ALIGN(16) typedef struct vs_params_t {
     }
     
 */
-static const char vs_cube_source_glsl330[263] = {
+static const char vs_source_glsl330[263] = {
     0x23,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
     0x69,0x66,0x6f,0x72,0x6d,0x20,0x76,0x65,0x63,0x34,0x20,0x76,0x73,0x5f,0x70,0x61,
     0x72,0x61,0x6d,0x73,0x5b,0x34,0x5d,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,
@@ -108,7 +113,7 @@ static const char vs_cube_source_glsl330[263] = {
     }
     
 */
-static const char fs_cube_source_glsl330[114] = {
+static const char fs_source_glsl330[114] = {
     0x23,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
     0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,
     0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,0x67,
@@ -122,7 +127,7 @@ static const sg_shader_desc cube_shader_desc_glsl330 = {
   0, /* _start_canary */
   { /*attrs*/{"position","TEXCOORD",0},{"color0","TEXCOORD",1},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0}, },
   { /* vs */
-    vs_cube_source_glsl330, /* source */
+    vs_source_glsl330, /* source */
     0,  /* bytecode */
     0,  /* bytecode_size */
     "main", /* entry */
@@ -147,7 +152,7 @@ static const sg_shader_desc cube_shader_desc_glsl330 = {
     { /* images */ {0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT},{0,_SG_IMAGETYPE_DEFAULT}, },
   },
   { /* fs */
-    fs_cube_source_glsl330, /* source */
+    fs_source_glsl330, /* source */
     0,  /* bytecode */
     0,  /* bytecode_size */
     "main", /* entry */
@@ -174,8 +179,8 @@ static const sg_shader_desc cube_shader_desc_glsl330 = {
   "cube_shader", /* label */
   0, /* _end_canary */
 };
-
- const sg_shader_desc* cube_shader_desc(void) {
+#endif /* SOKOL_GLCORE33 */
+const sg_shader_desc* cube_shader_desc(void) {
     #if defined(SOKOL_GLCORE33)
     if (sg_query_backend() == SG_BACKEND_GLCORE33) {
         return &cube_shader_desc_glsl330;
@@ -183,8 +188,4 @@ static const sg_shader_desc cube_shader_desc_glsl330 = {
     #endif /* SOKOL_GLCORE33 */
     return 0; /* can't happen */
 }
-#endif /* SOKOL_GLCORE33 */
-
-const struct sg_shader_desc* cube_shader_desc(void);
-
-// See triangle.glsl.h for how this was modified from the generated  shdc output...
+#endif /* SOKOL_SHDC_IMPL */

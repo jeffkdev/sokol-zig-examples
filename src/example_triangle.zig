@@ -1,5 +1,9 @@
 const std = @import("std");
 const c = @import("c.zig");
+const glsl = @cImport({
+    @cInclude("sokol/sokol_gfx.h");
+    @cInclude("shaders/triangle.glsl.h");
+});
 
 fn zero_struct(comptime T: type) T {
     var variable: T = undefined;
@@ -34,31 +38,9 @@ export fn init() void {
     buffer_desc.type = c.SG_BUFFERTYPE_VERTEXBUFFER;
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
-    var shader_desc = zero_struct(c.sg_shader_desc);
-
-    shader_desc.vs.source =
-        c\\#version 330
-        c\\layout(location = 0) in vec4 position;
-        c\\out vec4 color;
-        c\\layout(location = 1) in vec4 color0;
-        c\\void main() {
-        c\\  gl_Position = position;
-        c\\ color = color0;
-        c\\};
-    ;
-    shader_desc.fs.source =
-        c\\#version 330
-        c\\layout(location = 0) out vec4 frag_color;
-        c\\in vec4 color;
-        c\\void main() {
-        c\\   frag_color = color;
-        c\\};
-    ;
-    shader_desc.attrs = [_]c.sg_shader_attr_desc{
-        c.sg_shader_attr_desc{ .name = c"position", .sem_name = c"TEXCOORD", .sem_index = 0 },
-        c.sg_shader_attr_desc{ .name = c"color0", .sem_name = c"TEXCOORD", .sem_index = 1 },
-    };
-    const shader = c.sg_make_shader(&shader_desc);
+    const shader_desc =  @ptrCast([*c]const c.sg_shader_desc, glsl.triangle_shader_desc());
+    const shader = c.sg_make_shader(shader_desc);
+    
     var pipeline_desc = zero_struct(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
     pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
