@@ -16,8 +16,11 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);
     exe.addCSourceFile("../src/compile_sokol.c", [_][]const u8{"-std=c99"});
-    exe.addCSourceFile("../src/compile_cube_glsl.c", [_][]const u8{"-std=c99"});
-    exe.addCSourceFile("../src/compile_triangle_glsl.c", [_][]const u8{"-std=c99"});
+
+    // Shaders
+    exe.addCSourceFile("../src/shaders/cube_compile.c", [_][]const u8{"-std=c99"});
+    exe.addCSourceFile("../src/shaders/triangle_compile.c", [_][]const u8{"-std=c99"});
+    exe.addCSourceFile("../src/shaders/instancing_compile.c", [_][]const u8{"-std=c99"});
 
     exe.linkSystemLibrary("c");
     if (is_windows) {

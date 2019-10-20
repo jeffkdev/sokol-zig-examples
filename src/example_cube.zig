@@ -31,10 +31,7 @@ export fn init() void {
     c.sg_setup(&desc);
 
     c.stm_setup();
-
-    var imgui_desc = zero_struct(c.simgui_desc_t);
-    c.simgui_setup(&imgui_desc);
-
+    
     state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].val = [_]f32{ 0.2, 0.2, 0.2, 1.0 };
     const vertices = [_]f32{
@@ -70,7 +67,7 @@ export fn init() void {
         1.0,  1.0,  -1.0, 1.0, 0.0, 0.5, 1.0,
     };
 
-    var indices = [_]u16{
+    const indices = [_]u16{
         0,  1,  2,  0,  2,  3,
         6,  5,  4,  7,  6,  4,
         8,  9,  10, 8,  10, 11,
@@ -116,10 +113,8 @@ export fn update() void {
     var view_proj = Mat4.mul(view, proj);
     rx += 1.0 / 220.0;
     ry += 2.0 / 220.0;
-    var quat = m.fromAxis(rx, m.vec3(1, 0, 0));
-    var rxm = Mat4.fromQuaternion(quat);
-    quat = m.fromAxis(ry, m.vec3(0, 1, 0));
-    var rym: Mat4 = Mat4.fromQuaternion(quat);
+    var rxm = Mat4.createAngleAxis(m.vec3(1, 0, 0),rx);
+    var rym = Mat4.createAngleAxis(m.vec3(0, 1, 0),ry);
 
     var model = Mat4.mul(rxm, rym);
     var mvp = Mat4.mul(model, view_proj);

@@ -5,7 +5,7 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-// Altered source. Added: fromQuaternion, fromAxis, toArray. Fixed: lookAt, perspective
+// Altered source. Added: toArray. Altered: lookAt, perspective
 
 const std = @import("std");
 
@@ -494,66 +494,6 @@ pub const Mat4 = extern struct {
         return result;
     }
 
-    /// Axis must normalized
-    pub fn rotate(radians: f32, axis: Vec3) Self {
-        var result = Mat4.identity;
-
-        const sinTheta = @sin(f32, radians);
-        const cosTheta = @cos(f32, radians);
-        const cosValue = 1.0 - cosTheta;
-
-        result.fields[0][0] = (axis.x * axis.x * cosValue) + cosTheta;
-        result.fields[0][1] = (axis.x * axis.y * cosValue) + (axis.z * sinTheta);
-        result.fields[0][2] = (axis.x * axis.z * cosValue) - (axis.y * sinTheta);
-
-        result.fields[1][0] = (axis.y * axis.x * cosValue) - (axis.z * sinTheta);
-        result.fields[1][1] = (axis.y * axis.y * cosValue) + cosTheta;
-        result.fields[1][2] = (axis.y * axis.z * cosValue) + (axis.y * sinTheta);
-
-        result.fields[2][0] = (axis.z * axis.x * cosValue) + (axis.y * sinTheta);
-        result.fields[2][1] = (axis.z * axis.y * cosValue) - (axis.x * sinTheta);
-        result.fields[2][2] = (axis.z * axis.z * cosValue) + cosTheta;
-
-        return result;
-    }
-
-    pub fn fromQuaternion(quaternion: Vec4) Self {
-        const xs = quaternion.x * 2;
-        const ys = quaternion.y * 2;
-        const zs = quaternion.z * 2;
-        const wx = quaternion.w * xs;
-        const wy = quaternion.w * ys;
-        const wz = quaternion.w * zs;
-        const xx = quaternion.x * xs;
-        const xy = quaternion.x * ys;
-        const xz = quaternion.x * zs;
-        const yy = quaternion.y * ys;
-        const yz = quaternion.y * zs;
-        const zz = quaternion.z * zs;
-
-        var result: Mat4 = undefined;
-        result.fields[0][0] = (1.0 - (yy + zz));
-        result.fields[0][1] = (xy - wz);
-        result.fields[0][2] = (xz + wy);
-        result.fields[0][3] = 0.0;
-
-        result.fields[1][0] = (xy + wz);
-        result.fields[1][1] = (1.0 - (xx + zz));
-        result.fields[1][2] = (yz - wx);
-        result.fields[1][3] = 0.0;
-
-        result.fields[2][0] = (xz - wy);
-        result.fields[2][1] = (yz + wx);
-        result.fields[2][2] = (1.0 - (xx + yy));
-        result.fields[2][3] = 0.0;
-
-        result.fields[3][0] = 0.;
-        result.fields[3][1] = 0.;
-        result.fields[3][2] = 0.;
-        result.fields[3][3] = 1.0;
-        return result;
-    }
-
     pub fn toArray(m : Self) [16]f32 {
      var result :[16]f32= undefined;
       result[0] = m.fields[0][0];
@@ -578,17 +518,6 @@ pub const Mat4 = extern struct {
       return result;
 }
 };
-
-pub fn fromAxis(radians: f32, axis: Vec3) Vec4 {
-    var d = Vec3.length(vec3(axis.x, axis.y, axis.z));
-    if (d == 0.0) return vec4(0, 0, 0, 1);
-    d = 1 / d;
-    const PI2: f32 = std.math.pi * 2.0;
-    var ang = if (radians < 0) PI2 - (-@mod(radians, PI2)) else @mod(radians, PI2);
-    var sin = @sin(f32, ang / 2);
-    var cos = @cos(f32, ang / 2);
-    return Vec4.normalize(vec4(d * axis.x * sin, d * axis.y * sin, d * axis.z * sin, cos));
-}
 
 pub fn vec2(x: f32, y: f32) Vec2 {
     return Vec2.new(x, y);

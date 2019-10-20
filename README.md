@@ -36,14 +36,16 @@ valid files are:
   example_imgui.zig
 ![example_imgui.zig](docs/imgui.png)
   
+  example_instancing.zig
+![example_instancing.zig](docs/instancing.png)
+
   example_cube.zig
 ![example_cube.zig](docs/cube.png)
   
   example_triangle.zig
 ![example_triangle.zig](docs/triangle.png)
-  
+
   example_sound.zig
-  
 (plays beeping sound, blank screen)
   
   
@@ -53,8 +55,9 @@ The "glsl.h" shader files are generates from the ".glsl" files using. [sokol-shd
 
 ```
 sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl330 --format sokol_impl
-sokol-shdc.exe --input triangle.glsl --output triangle.glsl.h --slang glsl330 --format sokol_impl
 ```
+A python file build_shaders.py is included for convenience that will create the required glsl.h files and the *_compile.c files which calls the above command for each listed file (requires sokol-shdc.exe in the environment paths).
+
 The "--format sokol_impl" is important, otherwise they will be generated with inline declarations which caused issues using them in Zig. See the [documentation](https://github.com/floooh/sokol-tools/blob/master/docs/sokol-shdc.md) for more command line references.
 
 ## Debugging
