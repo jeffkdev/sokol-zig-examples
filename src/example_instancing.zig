@@ -16,7 +16,7 @@ fn zero_struct(comptime T: type) T {
 }
 
 const SampleCount = 4;
-const NUM_PARTICLES_EMITTED_PER_FRAME = 10;
+const NumParticlesEmittedPerFrame = 10;
 const MaxParticles: u32 = 512 * 2014;
 
 const State = struct {
@@ -106,7 +106,7 @@ export fn update() void {
 
     //e mit new particles
     var i: u32 = 0;
-    while (i < NUM_PARTICLES_EMITTED_PER_FRAME) : (i += 1) {
+    while (i < NumParticlesEmittedPerFrame) : (i += 1) {
         if (cur_num_particles < MaxParticles) {
             pos[cur_num_particles] = m.vec3(0, 0, 0);
             vel[cur_num_particles] = m.vec3(frnd(1) - 0.5, frnd(1) * 0.5 + 2.0, frnd(1) - 0.5);
