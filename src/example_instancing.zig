@@ -35,8 +35,6 @@ export fn init() void {
     var desc = zero_struct(c.sg_desc);
     c.sg_setup(&desc);
     c.stm_setup();
-    var imgui_desc = zero_struct(c.simgui_desc_t);
-    c.simgui_setup(&imgui_desc);
 
     state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].val = [_]f32{ 0.2, 0.2, 0.2, 1.0 };
