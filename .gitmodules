@@ -1,0 +1,9 @@
+[submodule "sokol"]
+	path = sokol
+	url = https://github.com/floooh/sokol.git
+[submodule "src/sokol"]
+	path = src/sokol
+	url = https://github.com/floooh/sokol.git
+[submodule "src/cimgui"]
+	path = src/cimgui
+	url = https://github.com/cimgui/cimgui.git
