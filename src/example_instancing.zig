@@ -135,10 +135,10 @@ export fn update() void {
 
     var proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
     var view: Mat4 = Mat4.createLookAt(m.vec3(0.0, 1.5, 12.0), m.vec3(0.0, 0.0, 0.0), m.vec3(0.0, 1.0, 0.0));
-    var view_proj = Mat4.mul(view, proj);
+    var view_proj = Mat4.mul(proj, view);
     ry += 2.0 / 400.0;
     var vs_params = glsl.vs_params_t{
-        .mvp = Mat4.mul(Mat4.createAngleAxis(m.vec3(0, 1, 0), ry),view_proj).toArray(),
+        .mvp = Mat4.mul(view_proj, Mat4.createAngleAxis(m.vec3(0, 1, 0), ry)).toArray(),
     };
 
     c.sg_begin_default_pass(&state.pass_action, width, height);

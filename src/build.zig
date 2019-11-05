@@ -11,7 +11,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     // Probably can take command line arg to build different examples
     // For now rename the mainFile const below (ex: "example_triangle.zig")
-    const mainFile = "example_imgui.zig"; 
+    const mainFile = "example_instancing.zig"; 
     var exe = b.addExecutable("program", "../src/" ++ mainFile);
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);

@@ -1,6 +1,3 @@
-[submodule "sokol"]
-	path = sokol
-	url = https://github.com/floooh/sokol.git
 [submodule "src/sokol"]
 	path = src/sokol
 	url = https://github.com/floooh/sokol.git
