@@ -1,12 +1,6 @@
 const std = @import("std");
 const c = @import("c.zig");
 
-fn zero_struct(comptime T: type) T {
-    var variable: T = undefined;
-    @memset(@ptrCast([*]u8, &variable), 0, @sizeOf(T));
-    return variable;
-}
-
 const NumSamples = 32;
 var pass_action: c.sg_pass_action = undefined;
 var sample_pos: usize = 0;
@@ -14,14 +8,14 @@ var samples: [NumSamples]f32 = undefined;
 var even_odd: u32 = 0;
 
 export fn init() void {
-    var desc = zero_struct(c.sg_desc);
+    var desc = std.mem.zeroes(c.sg_desc);
     c.sg_setup(&desc);
 
-    pass_action = zero_struct(c.sg_pass_action);
-    pass_action.colors[0].action = c.SG_ACTION_CLEAR;
+    pass_action = std.mem.zeroes(c.sg_pass_action);
+    pass_action.colors[0].action = .SG_ACTION_CLEAR;
     pass_action.colors[0].val = [_]f32{ 1.0, 0.5, 0.0, 1.0 };
 
-    var audio_desc = zero_struct(c.saudio_desc);
+    var audio_desc = std.mem.zeroes(c.saudio_desc);
     c.saudio_setup(&audio_desc);
 }
 
@@ -54,13 +48,13 @@ export fn cleanup() void {
     c.sg_shutdown();
 }
 
-export fn sokol_main() c.sapp_desc {
-    var app_desc = zero_struct(c.sapp_desc);
+pub fn main() void {
+    var app_desc = std.mem.zeroes(c.sapp_desc);
     app_desc.width = 1280;
     app_desc.height = 720;
     app_desc.init_cb = init;
     app_desc.frame_cb = update;
     app_desc.cleanup_cb = cleanup;
-    app_desc.window_title = c"Sound (sokol-zig)";
-    return app_desc;
+    app_desc.window_title = "Sound (sokol-zig)";
+    _ = c.sapp_run(&app_desc);
 }

@@ -11,9 +11,9 @@ const std = @import("std");
 
 pub const Vec3 = extern struct {
     const Self = @This();
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    x: f32,
+    y: f32,
+    z: f32,
 
     pub fn length2(a: Self) f32 {
         return Self.dot(a, a);
@@ -63,9 +63,6 @@ pub const Vec3 = extern struct {
         return result;
     }
 };
-pub fn vec3(x: f32, y: f32, z: f32) Vec3 {
-    return Vec3.new(x, y, z);
-}
 
 pub const Mat4 = extern struct {
     pub const Self = @This();
@@ -173,25 +170,13 @@ pub const Mat4 = extern struct {
 
     pub fn toArray(m: Self) [16]f32 {
         var result: [16]f32 = undefined;
-        result[0] = m.fields[0][0];
-        result[1] = m.fields[0][1];
-        result[2] = m.fields[0][2];
-        result[3] = m.fields[0][3];
-
-        result[4] = m.fields[1][0];
-        result[5] = m.fields[1][1];
-        result[6] = m.fields[1][2];
-        result[7] = m.fields[1][3];
-
-        result[8] = m.fields[2][0];
-        result[9] = m.fields[2][1];
-        result[10] = m.fields[2][2];
-        result[11] = m.fields[2][3];
-
-        result[12] = m.fields[3][0];
-        result[13] = m.fields[3][1];
-        result[14] = m.fields[3][2];
-        result[15] = m.fields[3][3];
+        var i :usize = 0;
+        inline for ([_]comptime_int{ 0, 1, 2, 3 }) |col| {
+            inline for ([_]comptime_int{ 0, 1, 2, 3 }) |row| {
+                result[i] = m.fields[col][row];
+                i += 1;
+            }
+        }
         return result;
     }
 };
