@@ -1,15 +1,11 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig (0.5.0). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Only working in Windows at the moment, but with some effort could be modified to target other platforms.
+Some of the Sokol examples running in Zig 0.5.0+b55bc5eb2 (Feb 2020). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Only working in Windows at the moment, but with some effort could be modified to target other platforms.
 
 See
    - https://github.com/floooh/sokol
    - https://github.com/floooh/sokol-samples
    - https://github.com/ziglang/zig
-    
-If you are visiting this page in the future you may want to check the status of this repo by the creator of Sokol, which may or may not be more developed:
-  -  https://github.com/floooh/sokol-zig
-
 
 ## Building
 
@@ -29,8 +25,8 @@ Run application in the future using:
     zig build run
     
    
-A bit hacky, but to run different examples change the main file in the build.zig file:
-    const mainFile = "example_imgui.zig"; 
+To run different examples change the main file in the build.zig file:
+```    const mainFile = "example_instancing.zig"; ```
 
 valid files are:
   example_imgui.zig
