@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.5.0+b55bc5eb2 (Feb 2020). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Only working in Windows at the moment, but with some effort could be modified to target other platforms.
+Some of the Sokol examples running in Zig 0.5.0+107b5196f (March 2020). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Only working in Windows at the moment, but with some effort could be modified to target other platforms.
 
 See
    - https://github.com/floooh/sokol
@@ -12,15 +12,9 @@ See
 Clone
 
     git clone --recurse-submodules https://github.com/jeffkdev/sokol-zig-examples.git
-
-Download and add zig.exe to path (see zig link above)
-    
-Build imgui .o files (clang++ required. One time only)
-
-    build.bat
     
     
-Run application in the future using:
+Navigate to the /src directory and run application in the future using:
 
     zig build run
     
