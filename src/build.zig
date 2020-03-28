@@ -17,24 +17,25 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     exe.setBuildMode(mode);
     exe.addCSourceFile("../src/compile_sokol.c", &[_][]const u8{"-std=c99"});
 
-    const cpp_args = "-Wno-return-type-c-linkage";
-    exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &[_][]const u8{cpp_args});
-    exe.addCSourceFile("../src/cimgui/imgui/imgui_demo.cpp", &[_][]const u8{cpp_args});
-    exe.addCSourceFile("../src/cimgui/imgui/imgui_draw.cpp", &[_][]const u8{cpp_args});
-    exe.addCSourceFile("../src/cimgui/imgui/imgui_widgets.cpp", &[_][]const u8{cpp_args});
-    exe.addCSourceFile("../src/cimgui/cimgui.cpp", &[_][]const u8{cpp_args});
+    const cpp_args = [_][]const u8{"-Wno-return-type-c-linkage"};
+    exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &cpp_args);
+    exe.addCSourceFile("../src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
+    exe.addCSourceFile("../src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
+    exe.addCSourceFile("../src/cimgui/imgui/imgui_widgets.cpp", &cpp_args);
+    exe.addCSourceFile("../src/cimgui/cimgui.cpp", &cpp_args);
 
     // Shaders
     exe.addCSourceFile("../src/shaders/cube_compile.c", &[_][]const u8{"-std=c99"});
     exe.addCSourceFile("../src/shaders/triangle_compile.c", &[_][]const u8{"-std=c99"});
     exe.addCSourceFile("../src/shaders/instancing_compile.c", &[_][]const u8{"-std=c99"});
-    exe.linkSystemLibrary("c");
+    exe.linkLibC();
 
     if (is_windows) {
         exe.linkSystemLibrary("user32");
         exe.linkSystemLibrary("gdi32");
     } else {
         // Not tested
+        @panic("OS not supported. Try removing panic in build.zig if you want to test this");
         exe.linkSystemLibrary("GL");
         exe.linkSystemLibrary("GLEW");
     }
