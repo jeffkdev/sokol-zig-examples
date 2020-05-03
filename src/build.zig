@@ -17,7 +17,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);
 
-    const cFlags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" };
+    const cFlags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
     exe.addCSourceFile("../src/compile_sokol.c", &cFlags);
 
     const cpp_args = [_][]const u8{"-Wno-return-type-c-linkage"};
