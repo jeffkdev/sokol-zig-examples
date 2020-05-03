@@ -4,6 +4,7 @@ const builtin = @import("builtin");
 const build_root = "../build/";
 
 const is_windows = std.Target.current.os.tag == .windows;
+const is_macos = std.Target.current.os.tag == .macosx;
 
 pub fn build(b: *std.build.Builder) anyerror!void {
     b.release_mode = builtin.Mode.Debug;
@@ -15,7 +16,9 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     var exe = b.addExecutable("program", "../src/" ++ mainFile);
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);
-    exe.addCSourceFile("../src/compile_sokol.c", &[_][]const u8{"-std=c99"});
+
+    const cFlags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" };
+    exe.addCSourceFile("../src/compile_sokol.c", &cFlags);
 
     const cpp_args = [_][]const u8{"-Wno-return-type-c-linkage"};
     exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &cpp_args);
@@ -33,6 +36,20 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     if (is_windows) {
         exe.linkSystemLibrary("user32");
         exe.linkSystemLibrary("gdi32");
+    } else if (is_macos) {
+        const frameworks_dir = try macos_frameworks_dir(b);
+        exe.addFrameworkDir(frameworks_dir);
+        exe.linkFramework("Foundation");
+        exe.linkFramework("Cocoa");
+        exe.linkFramework("Quartz");
+        exe.linkFramework("QuartzCore");
+        exe.linkFramework("Metal");
+        exe.linkFramework("MetalKit");
+        exe.linkFramework("OpenGL");
+        exe.linkFramework("Audiotoolbox");
+        exe.linkFramework("CoreAudio");
+        exe.linkSystemLibrary("c++");
+        exe.enableSystemLinkerHack();
     } else {
         // Not tested
         @panic("OS not supported. Try removing panic in build.zig if you want to test this");
@@ -47,4 +64,15 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     b.default_step.dependOn(&exe.step);
     b.installArtifact(exe);
+}
+
+// helper function to get SDK path on Mac sourced from: https://github.com/floooh/sokol-zig
+fn macos_frameworks_dir(b: *std.build.Builder) ![]u8 {
+    var str = try b.exec(&[_][]const u8{ "xcrun", "--show-sdk-path" });
+    const strip_newline = std.mem.lastIndexOf(u8, str, "\n");
+    if (strip_newline) |index| {
+        str = str[0..index];
+    }
+    const frameworks_dir = try std.mem.concat(b.allocator, u8, &[_][]const u8{ str, "/System/Library/Frameworks" });
+    return frameworks_dir;
 }
