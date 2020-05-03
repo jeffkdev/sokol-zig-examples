@@ -21,6 +21,7 @@ var state: State = undefined;
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
+    desc.context = c.sapp_sgcontext();
     c.sg_setup(&desc);
 
     c.stm_setup();

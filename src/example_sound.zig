@@ -9,6 +9,7 @@ var even_odd: u32 = 0;
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
+    desc.context = c.sapp_sgcontext();
     c.sg_setup(&desc);
 
     pass_action = std.mem.zeroes(c.sg_pass_action);

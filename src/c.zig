@@ -7,4 +7,5 @@ pub usingnamespace @cImport({
     @cDefine("CIMGUI_DEFINE_ENUMS_AND_STRUCTS", "");
     @cInclude("cimgui/cimgui.h");
     @cInclude("sokol/util/sokol_imgui.h");
+    @cInclude("sokol/sokol_glue.h");
 });

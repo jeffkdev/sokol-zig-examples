@@ -15,6 +15,7 @@ var state: State = undefined;
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
+    desc.context = c.sapp_sgcontext();
     c.sg_setup(&desc);
 
     state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
