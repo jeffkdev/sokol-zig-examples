@@ -25,9 +25,9 @@ export fn init() void {
     c.sg_setup(&desc);
 
     c.stm_setup();
-    
+
     state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
-    state.pass_action.colors[0].val = [_]f32{ 0.2, 0.2, 0.2, 1.0 };
+    state.pass_action.colors[0].value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
     const vertices = [_]f32{
         // positions     // colors
         -1.0, -1.0, -1.0, 1.0, 0.0, 0.0, 1.0,
@@ -72,16 +72,17 @@ export fn init() void {
 
     var buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.size = vertices.len * @sizeOf(f32);
-    buffer_desc.content = &vertices[0];
+    buffer_desc.data = .{ .ptr = &vertices[0], .size = buffer_desc.size };
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
     buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.type = .SG_BUFFERTYPE_INDEXBUFFER;
     buffer_desc.size = indices.len * @sizeOf(u16);
-    buffer_desc.content = &indices[0];
+    //buffer_desc.content = &indices[0];
+    buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
-    const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.cube_shader_desc());
+    const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.cube_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[0].format = .SG_VERTEXFORMAT_FLOAT3;
@@ -89,10 +90,9 @@ export fn init() void {
     pipeline_desc.layout.buffers[0].stride = 28;
     pipeline_desc.shader = shader;
     pipeline_desc.index_type = .SG_INDEXTYPE_UINT16;
-    pipeline_desc.depth_stencil.depth_compare_func = .SG_COMPAREFUNC_LESS_EQUAL;
-    pipeline_desc.depth_stencil.depth_write_enabled = true;
-    pipeline_desc.rasterizer.cull_mode = .SG_CULLMODE_BACK;
-    pipeline_desc.rasterizer.sample_count = SampleCount;
+    pipeline_desc.depth.compare = .SG_COMPAREFUNC_LESS_EQUAL;
+    pipeline_desc.depth.write_enabled = true;
+    pipeline_desc.cull_mode = .SG_CULLMODE_BACK;
     state.main_pipeline = c.sg_make_pipeline(&pipeline_desc);
 }
 
@@ -107,8 +107,8 @@ export fn update() void {
     var view_proj = Mat4.mul(proj, view);
     rx += 1.0 / 220.0;
     ry += 2.0 / 220.0;
-    var rxm = Mat4.createAngleAxis(Vec3.new(1, 0, 0),rx);
-    var rym = Mat4.createAngleAxis(Vec3.new(0, 1, 0),ry);
+    var rxm = Mat4.createAngleAxis(Vec3.new(1, 0, 0), rx);
+    var rym = Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry);
 
     var model = Mat4.mul(rxm, rym);
     var mvp = Mat4.mul(view_proj, model);
@@ -119,7 +119,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(.SG_SHADERSTAGE_VS, 0, &vs_params, @sizeOf(glsl.vs_params_t));
+    c.sg_apply_uniforms(.SG_SHADERSTAGE_VS, 0, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();

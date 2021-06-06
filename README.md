@@ -87,7 +87,7 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
    {
     "environment":[],
     "stopAtEntry":false,
-    "program":"${workspaceRoot}/zig-cache/bin/program.exe",
+    "program":"${workspaceRoot}/zig-out/bin/program.exe",
     "name":"program",
     "externalConsole":false,
     "preLaunchTask":"zig_build",

@@ -1,2 +1,3 @@
 src/zig-cache/
+src/zig-out/
 .vscode/

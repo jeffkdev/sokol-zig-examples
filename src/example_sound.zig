@@ -14,7 +14,7 @@ export fn init() void {
 
     pass_action = std.mem.zeroes(c.sg_pass_action);
     pass_action.colors[0].action = .SG_ACTION_CLEAR;
-    pass_action.colors[0].val = [_]f32{ 1.0, 0.5, 0.0, 1.0 };
+    pass_action.colors[0].value = c.sg_color{ .r = 1.0, .g = 0.5, .b = 0.0, .a = 1.0 };
 
     var audio_desc = std.mem.zeroes(c.saudio_desc);
     c.saudio_setup(&audio_desc);
@@ -22,16 +22,16 @@ export fn init() void {
 
 export fn update() void {
     c.sg_begin_default_pass(&pass_action, c.sapp_width(), c.sapp_height());
-    const num_frames = @intCast(u32,c.saudio_expect());
-    var s : f32 = 0.0;
-    var i :u32 = 0;
+    const num_frames = @intCast(u32, c.saudio_expect());
+    var s: f32 = 0.0;
+    var i: u32 = 0;
     while (i < num_frames) {
-        if (even_odd & (1<<5) != 0) {
+        if (even_odd & (1 << 5) != 0) {
             s = 0.05;
         } else {
             s = -0.05;
         }
-        even_odd+=1;
+        even_odd += 1;
         samples[sample_pos] = s;
         sample_pos += 1;
         if (sample_pos == NumSamples) {

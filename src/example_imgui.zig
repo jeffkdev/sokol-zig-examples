@@ -13,6 +13,7 @@ var show_test_window: bool = false;
 var show_another_window: bool = false;
 var display_menu: bool = false;
 var f: f32 = 0.0;
+var clear_color: [3]f32 = .{ 0.2, 0.2, 0.2 };
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
@@ -24,7 +25,7 @@ export fn init() void {
     c.simgui_setup(&imgui_desc);
 
     state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
-    state.pass_action.colors[0].val = [_]f32{ 0.2, 0.2, 0.2, 1.0 };
+    state.pass_action.colors[0].value = c.sg_color{ .r = clear_color[0], .g = clear_color[1], .b = clear_color[2], .a = 1.0 };
 }
 
 export fn update() void {
@@ -35,7 +36,11 @@ export fn update() void {
 
     c.igText("Hello, world!");
     _ = c.igSliderFloat("float", &f, 0.0, 1.0, "%.3f", 1.0);
-    _ = c.igColorEdit3("clear color", &state.pass_action.colors[0].val[0], 0);
+    if (c.igColorEdit3("clear color", &clear_color[0], 0)) {
+        state.pass_action.colors[0].value.r = clear_color[0];
+        state.pass_action.colors[0].value.g = clear_color[1];
+        state.pass_action.colors[0].value.b = clear_color[2];
+    }
     if (c.igButton("Test Window", c.ImVec2{ .x = 0.0, .y = 0.0 })) show_test_window = !show_test_window;
     if (c.igButton("Another Window", c.ImVec2{ .x = 0.0, .y = 0.0 })) show_another_window = !show_another_window;
     c.igText("Application average %.3f ms/frame (%.1f FPS)", 1000.0 / c.igGetIO().*.Framerate, c.igGetIO().*.Framerate);

@@ -4,10 +4,10 @@ const builtin = @import("builtin");
 const build_root = "../build/";
 
 const is_windows = std.Target.current.os.tag == .windows;
-const is_macos = std.Target.current.os.tag == .macosx;
+const is_macos = std.Target.current.os.tag == .macos;
 
 pub fn build(b: *std.build.Builder) anyerror!void {
-    b.release_mode = builtin.Mode.Debug;
+    b.setPreferredReleaseMode(.Debug);
     const mode = b.standardReleaseOptions();
 
     // Probably can take command line arg to build different examples
@@ -20,7 +20,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     const cFlags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
     exe.addCSourceFile("../src/compile_sokol.c", &cFlags);
 
-    const cpp_args = [_][]const u8{"-Wno-return-type-c-linkage"};
+    const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
     exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &cpp_args);
     exe.addCSourceFile("../src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
     exe.addCSourceFile("../src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
@@ -36,6 +36,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     if (is_windows) {
         exe.linkSystemLibrary("user32");
         exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("ole32"); // For Sokol audio
     } else if (is_macos) {
         const frameworks_dir = try macos_frameworks_dir(b);
         exe.addFrameworkDir(frameworks_dir);
