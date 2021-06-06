@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.6.0+9b788b765 (May 2020). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
+Some of the Sokol examples running in Zig 0.8.0 (June 2021). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
  - MacOS (OpenGL)
  
@@ -9,6 +9,7 @@ With some modifications to the build.zig script it could be modified to target o
 See
    - https://github.com/floooh/sokol
    - https://github.com/floooh/sokol-samples
+   - https://github.com/floooh/sokol-zig
    - https://github.com/ziglang/zig
 
 ## Building
