@@ -78,7 +78,6 @@ export fn init() void {
     buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.type = .SG_BUFFERTYPE_INDEXBUFFER;
     buffer_desc.size = indices.len * @sizeOf(u16);
-    //buffer_desc.content = &indices[0];
     buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 

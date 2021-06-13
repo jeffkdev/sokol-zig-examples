@@ -7,8 +7,10 @@ const is_windows = std.Target.current.os.tag == .windows;
 const is_macos = std.Target.current.os.tag == .macos;
 
 pub fn build(b: *std.build.Builder) anyerror!void {
-    b.setPreferredReleaseMode(.Debug);
     const mode = b.standardReleaseOptions();
+
+    // Previously was exe.enableSystemLinkerHack(): See https://github.com/jeffkdev/sokol-zig-examples/issues/2
+    if (is_macos) try b.env_map.put("ZIG_SYSTEM_LINKER_HACK", "1");
 
     // Probably can take command line arg to build different examples
     // For now rename the mainFile const below (ex: "example_triangle.zig")
@@ -34,6 +36,8 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     exe.linkLibC();
 
     if (is_windows) {
+        //See https://github.com/ziglang/zig/issues/8531 only matters in release mode
+        exe.want_lto = false;
         exe.linkSystemLibrary("user32");
         exe.linkSystemLibrary("gdi32");
         exe.linkSystemLibrary("ole32"); // For Sokol audio
@@ -50,7 +54,6 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.linkFramework("Audiotoolbox");
         exe.linkFramework("CoreAudio");
         exe.linkSystemLibrary("c++");
-        exe.enableSystemLinkerHack();
     } else {
         // Not tested
         @panic("OS not supported. Try removing panic in build.zig if you want to test this");
