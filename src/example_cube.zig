@@ -26,7 +26,7 @@ export fn init() void {
 
     c.stm_setup();
 
-    state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
+    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
     const vertices = [_]f32{
         // positions     // colors
@@ -76,7 +76,7 @@ export fn init() void {
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
     buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
-    buffer_desc.type = .SG_BUFFERTYPE_INDEXBUFFER;
+    buffer_desc.type = c.SG_BUFFERTYPE_INDEXBUFFER;
     buffer_desc.size = indices.len * @sizeOf(u16);
     buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
@@ -84,14 +84,14 @@ export fn init() void {
     const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.cube_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[0].format = .SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[1].format = .SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
     pipeline_desc.layout.buffers[0].stride = 28;
     pipeline_desc.shader = shader;
-    pipeline_desc.index_type = .SG_INDEXTYPE_UINT16;
-    pipeline_desc.depth.compare = .SG_COMPAREFUNC_LESS_EQUAL;
+    pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
+    pipeline_desc.depth.compare = c.SG_COMPAREFUNC_LESS_EQUAL;
     pipeline_desc.depth.write_enabled = true;
-    pipeline_desc.cull_mode = .SG_CULLMODE_BACK;
+    pipeline_desc.cull_mode = c.SG_CULLMODE_BACK;
     state.main_pipeline = c.sg_make_pipeline(&pipeline_desc);
 }
 
@@ -118,7 +118,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(.SG_SHADERSTAGE_VS, 0, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();

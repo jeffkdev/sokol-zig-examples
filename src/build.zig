@@ -3,8 +3,8 @@ const builtin = @import("builtin");
 
 const build_root = "../build/";
 
-const is_windows = std.Target.current.os.tag == .windows;
-const is_macos = std.Target.current.os.tag == .macos;
+const is_windows = builtin.target.os.tag == .windows;
+const is_macos = builtin.target.os.tag == .macos;
 
 pub fn build(b: *std.build.Builder) anyerror!void {
     const mode = b.standardReleaseOptions();
@@ -13,14 +13,14 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     if (is_macos) try b.env_map.put("ZIG_SYSTEM_LINKER_HACK", "1");
 
     // Probably can take command line arg to build different examples
-    // For now rename the mainFile const below (ex: "example_triangle.zig")
-    const mainFile = "example_triangle.zig";
-    var exe = b.addExecutable("program", "../src/" ++ mainFile);
+    // For now rename the main_file const below (ex: "example_triangle.zig")
+    const main_file = "example_triangle.zig";
+    var exe = b.addExecutable("program", "../src/" ++ main_file);
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);
 
-    const cFlags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
-    exe.addCSourceFile("../src/compile_sokol.c", &cFlags);
+    const c_flags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
+    exe.addCSourceFile("../src/compile_sokol.c", &c_flags);
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
     exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &cpp_args);
@@ -56,9 +56,9 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.linkSystemLibrary("c++");
     } else {
         // Not tested
-        @panic("OS not supported. Try removing panic in build.zig if you want to test this");
         exe.linkSystemLibrary("GL");
         exe.linkSystemLibrary("GLEW");
+        @panic("OS not supported. Try removing panic in build.zig if you want to test this");
     }
 
     const run_cmd = exe.run();

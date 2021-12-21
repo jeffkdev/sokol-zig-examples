@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.8.0 (June 2021). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
+Some of the Sokol examples running in Zig 0.9.0 (December 2021). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
  - MacOS (OpenGL)
  
@@ -25,7 +25,7 @@ Navigate to the /src directory and run application using:
     
    
 To run different examples change the main file in the build.zig file:
-```    const mainFile = "example_instancing.zig"; ```
+```    const main_file = "example_instancing.zig"; ```
 
 valid files are:
   example_imgui.zig

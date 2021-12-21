@@ -24,7 +24,7 @@ export fn init() void {
     var imgui_desc = std.mem.zeroes(c.simgui_desc_t);
     c.simgui_setup(&imgui_desc);
 
-    state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
+    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].value = c.sg_color{ .r = clear_color[0], .g = clear_color[1], .b = clear_color[2], .a = 1.0 };
 }
 
@@ -80,6 +80,7 @@ pub fn main() void {
     app_desc.frame_cb = update;
     app_desc.cleanup_cb = cleanup;
     app_desc.event_cb = event;
+    app_desc.enable_clipboard = true; 
     app_desc.window_title = "IMGUI (sokol-zig)";
     _ = c.sapp_run(&app_desc);
 }

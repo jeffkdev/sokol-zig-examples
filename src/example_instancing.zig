@@ -25,7 +25,7 @@ var pos: [MaxParticles]Vec3 = undefined;
 var vel: [MaxParticles]Vec3 = undefined;
 
 fn frnd(range: f32) f32 {
-    return rndgen.random.float(f32) * range;
+    return rndgen.random().float(f32) * range;
 }
 
 export fn init() void {
@@ -34,7 +34,7 @@ export fn init() void {
     c.sg_setup(&desc);
     c.stm_setup();
 
-    state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
+    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
     const r = 0.05;
     const vertices = [_]f32{
@@ -58,30 +58,30 @@ export fn init() void {
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&vertex_buffer_desc);
 
     var index_buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
-    index_buffer_desc.type = .SG_BUFFERTYPE_INDEXBUFFER;
+    index_buffer_desc.type = c.SG_BUFFERTYPE_INDEXBUFFER;
     index_buffer_desc.size = indices.len * @sizeOf(u16);
     index_buffer_desc.data = .{ .ptr = &indices[0], .size = index_buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&index_buffer_desc);
 
     var instance_buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     instance_buffer_desc.size = MaxParticles * @sizeOf(Vec3);
-    instance_buffer_desc.usage = .SG_USAGE_STREAM;
+    instance_buffer_desc.usage = c.SG_USAGE_STREAM;
     state.main_bindings.vertex_buffers[1] = c.sg_make_buffer(&instance_buffer_desc);
 
     const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.instancing_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_pos].format = .SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_color0].format = .SG_VERTEXFORMAT_FLOAT4;
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_inst_pos].format = .SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_vs_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_vs_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[glsl.ATTR_vs_inst_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
     pipeline_desc.layout.attrs[glsl.ATTR_vs_inst_pos].buffer_index = 1;
-    pipeline_desc.layout.buffers[1].step_func = .SG_VERTEXSTEP_PER_INSTANCE;
+    pipeline_desc.layout.buffers[1].step_func = c.SG_VERTEXSTEP_PER_INSTANCE;
     pipeline_desc.shader = shader;
-    pipeline_desc.index_type = .SG_INDEXTYPE_UINT16;
-    pipeline_desc.depth.compare = .SG_COMPAREFUNC_LESS_EQUAL;
+    pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
+    pipeline_desc.depth.compare = c.SG_COMPAREFUNC_LESS_EQUAL;
     pipeline_desc.depth.write_enabled = true;
-    pipeline_desc.cull_mode = .SG_CULLMODE_BACK;
+    pipeline_desc.cull_mode = c.SG_CULLMODE_BACK;
     state.main_pipeline = c.sg_make_pipeline(&pipeline_desc);
 }
 
@@ -138,7 +138,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 24, @intCast(c_int, cur_num_particles));
     c.sg_end_pass();
     c.sg_commit();

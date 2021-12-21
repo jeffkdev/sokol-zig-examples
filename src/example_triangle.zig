@@ -18,7 +18,7 @@ export fn init() void {
     desc.context = c.sapp_sgcontext();
     c.sg_setup(&desc);
 
-    state.pass_action.colors[0].action = .SG_ACTION_CLEAR;
+    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     state.pass_action.colors[0].value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
     const vertices = [_]f32{
         // positions     // colors
@@ -30,15 +30,15 @@ export fn init() void {
     var buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.size = vertices.len * @sizeOf(f32);
     buffer_desc.data = .{ .ptr = &vertices[0], .size = buffer_desc.size };
-    buffer_desc.type = .SG_BUFFERTYPE_VERTEXBUFFER;
+    buffer_desc.type = c.SG_BUFFERTYPE_VERTEXBUFFER;
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
     const shader_desc = @ptrCast([*c]const c.sg_shader_desc, glsl.triangle_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[0].format = .SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[1].format = .SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
     pipeline_desc.shader = shader;
     state.main_pipeline = c.sg_make_pipeline(&pipeline_desc);
 }
