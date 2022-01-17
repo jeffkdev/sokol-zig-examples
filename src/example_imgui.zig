@@ -51,6 +51,14 @@ export fn update() void {
         c.igText("Hello");
         c.igEnd();
     }
+    var ig_context: *c.ImGuiContext = c.igGetCurrentContext();
+    var window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
+    if (!window.SkipItems) {
+        c.igText(
+            \\ Translate-c converts c.ImGuiWindow to an opaque type
+            \\ in imgui 1.80+ causing this to not compile
+        );
+    }
 
     if (show_test_window) {
         c.igSetNextWindowPos(c.ImVec2{ .x = 460, .y = 20 }, c.ImGuiCond_FirstUseEver, c.ImVec2{ .x = 0, .y = 0 });
@@ -80,7 +88,7 @@ pub fn main() void {
     app_desc.frame_cb = update;
     app_desc.cleanup_cb = cleanup;
     app_desc.event_cb = event;
-    app_desc.enable_clipboard = true; 
+    app_desc.enable_clipboard = true;
     app_desc.window_title = "IMGUI (sokol-zig)";
     _ = c.sapp_run(&app_desc);
 }

@@ -16,7 +16,7 @@ export fn init() void {
     pass_action.colors[0].action = c.SG_ACTION_CLEAR;
     pass_action.colors[0].value = c.sg_color{ .r = 1.0, .g = 0.5, .b = 0.0, .a = 1.0 };
 
-    var audio_desc = std.mem.zeroes(c.saudio_desc);
+    const audio_desc = std.mem.zeroes(c.saudio_desc);
     c.saudio_setup(&audio_desc);
 }
 
