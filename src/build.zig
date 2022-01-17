@@ -14,7 +14,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     // Probably can take command line arg to build different examples
     // For now rename the main_file const below (ex: "example_triangle.zig")
-    const main_file = "example_triangle.zig";
+    const main_file = "example_imgui.zig";
     var exe = b.addExecutable("program", "../src/" ++ main_file);
     exe.addIncludeDir("../src/");
     exe.setBuildMode(mode);
@@ -24,8 +24,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
     exe.addCSourceFile("../src/cimgui/imgui/imgui.cpp", &cpp_args);
-    // Need to add this after updating imgui to 1.80+
-    // exe.addCSourceFile("../src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
+    exe.addCSourceFile("../src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
     exe.addCSourceFile("../src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
     exe.addCSourceFile("../src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
     exe.addCSourceFile("../src/cimgui/imgui/imgui_widgets.cpp", &cpp_args);
@@ -40,9 +39,9 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     if (is_windows) {
         //See https://github.com/ziglang/zig/issues/8531 only matters in release mode
         exe.want_lto = false;
-            exe.linkSystemLibrary("user32");
-            exe.linkSystemLibrary("gdi32");
-            exe.linkSystemLibrary("ole32"); // For Sokol audio
+        exe.linkSystemLibrary("user32");
+        exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("ole32"); // For Sokol audio
     } else if (is_macos) {
         const frameworks_dir = try macos_frameworks_dir(b);
         exe.addFrameworkDir(frameworks_dir);
