@@ -51,8 +51,8 @@ export fn update() void {
         c.igText("Hello");
         c.igEnd();
     }
-    var ig_context: *c.ImGuiContext = c.igGetCurrentContext();
-    var window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
+    const ig_context: *c.ImGuiContext = c.igGetCurrentContext();
+    const window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
     if (!window.SkipItems) {
         c.igText(
             \\ Translate-c converts c.ImGuiWindow to an opaque type
