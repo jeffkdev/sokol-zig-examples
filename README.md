@@ -22,6 +22,108 @@ pub const struct_ImGuiWindow = opaque {};
 pub const ImGuiWindow = struct_ImGuiWindow;
 ```
 
+c struct in cimgui.h
+```
+struct ImGuiWindow
+{
+    char* Name;
+    ImGuiID ID;
+    ImGuiWindowFlags Flags;
+    ImVec2 Pos;
+    ImVec2 Size;
+    ImVec2 SizeFull;
+    ImVec2 ContentSize;
+    ImVec2 ContentSizeIdeal;
+    ImVec2 ContentSizeExplicit;
+    ImVec2 WindowPadding;
+    float WindowRounding;
+    float WindowBorderSize;
+    int NameBufLen;
+    ImGuiID MoveId;
+    ImGuiID ChildId;
+    ImVec2 Scroll;
+    ImVec2 ScrollMax;
+    ImVec2 ScrollTarget;
+    ImVec2 ScrollTargetCenterRatio;
+    ImVec2 ScrollTargetEdgeSnapDist;
+    ImVec2 ScrollbarSizes;
+    bool ScrollbarX, ScrollbarY;
+    bool Active;
+    bool WasActive;
+    bool WriteAccessed;
+    bool Collapsed;
+    bool WantCollapseToggle;
+    bool SkipItems;
+    bool Appearing;
+    bool Hidden;
+    bool IsFallbackWindow;
+    bool IsExplicitChild;
+    bool HasCloseButton;
+    signed char ResizeBorderHeld;
+    short BeginCount;
+    short BeginOrderWithinParent;
+    short BeginOrderWithinContext;
+    short FocusOrder;
+    ImGuiID PopupId;
+    ImS8 AutoFitFramesX, AutoFitFramesY;
+    ImS8 AutoFitChildAxises;
+    bool AutoFitOnlyGrows;
+    ImGuiDir AutoPosLastDirection;
+    ImS8 HiddenFramesCanSkipItems;
+    ImS8 HiddenFramesCannotSkipItems;
+    ImS8 HiddenFramesForRenderOnly;
+    ImS8 DisableInputsFrames;
+    ImGuiCond SetWindowPosAllowFlags : 8;
+    ImGuiCond SetWindowSizeAllowFlags : 8;
+    ImGuiCond SetWindowCollapsedAllowFlags : 8;
+    ImVec2 SetWindowPosVal;
+    ImVec2 SetWindowPosPivot;
+    ImVector_ImGuiID IDStack;
+    ImGuiWindowTempData DC;
+    ImRect OuterRectClipped;
+    ImRect InnerRect;
+    ImRect InnerClipRect;
+    ImRect WorkRect;
+    ImRect ParentWorkRect;
+    ImRect ClipRect;
+    ImRect ContentRegionRect;
+    ImVec2ih HitTestHoleSize;
+    ImVec2ih HitTestHoleOffset;
+    int LastFrameActive;
+    float LastTimeActive;
+    float ItemWidthDefault;
+    ImGuiStorage StateStorage;
+    ImVector_ImGuiOldColumns ColumnsStorage;
+    float FontWindowScale;
+    int SettingsOffset;
+    ImDrawList* DrawList;
+    ImDrawList DrawListInst;
+    ImGuiWindow* ParentWindow;
+    ImGuiWindow* ParentWindowInBeginStack;
+    ImGuiWindow* RootWindow;
+    ImGuiWindow* RootWindowPopupTree;
+    ImGuiWindow* RootWindowForTitleBarHighlight;
+    ImGuiWindow* RootWindowForNav;
+    ImGuiWindow* NavLastChildNavWindow;
+    ImGuiID NavLastIds[ImGuiNavLayer_COUNT];
+    ImRect NavRectRel[ImGuiNavLayer_COUNT];
+    int MemoryDrawListIdxCapacity;
+    int MemoryDrawListVtxCapacity;
+    bool MemoryCompacted;
+};
+```
+The struct_ImGuiWindowTempData struct defined immidiately before it translates fine:
+```
+pub const struct_ImGuiWindowTempData = extern struct {
+    CursorPos: ImVec2,
+    CursorPosPrevLine: ImVec2,
+    CursorStartPos: ImVec2,
+    CursorMaxPos: ImVec2,
+```
+
+
+
+
 # sokol-zig-examples
 
 Some of the Sokol examples running in Zig 0.9.0 (December 2021). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
