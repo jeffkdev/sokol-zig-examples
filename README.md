@@ -1,4 +1,4 @@
-# Branch cimgui_186_update
+# Branch cimgui_186_update issue
 Tracks issue where translate-c is converting ImGuiWindow to an opaque type.
 To test:
 ```
@@ -22,8 +22,8 @@ pub const struct_ImGuiWindow = opaque {};
 pub const ImGuiWindow = struct_ImGuiWindow;
 ```
 
-c struct in cimgui.h
-```
+c struct in cimgui.h (1.86, not working)
+```c
 struct ImGuiWindow
 {
     char* Name;
@@ -112,14 +112,96 @@ struct ImGuiWindow
     bool MemoryCompacted;
 };
 ```
-The struct_ImGuiWindowTempData struct defined immidiately before it translates fine:
+1.7x struct (working):
+```c
+struct ImGuiWindow
+{
+    char* Name;
+    ImGuiID ID;
+    ImGuiWindowFlags Flags;
+    ImVec2 Pos;
+    ImVec2 Size;
+    ImVec2 SizeFull;
+    ImVec2 ContentSize;
+    ImVec2 ContentSizeExplicit;
+    ImVec2 WindowPadding;
+    float WindowRounding;
+    float WindowBorderSize;
+    int NameBufLen;
+    ImGuiID MoveId;
+    ImGuiID ChildId;
+    ImVec2 Scroll;
+    ImVec2 ScrollMax;
+    ImVec2 ScrollTarget;
+    ImVec2 ScrollTargetCenterRatio;
+    ImVec2 ScrollbarSizes;
+    bool ScrollbarX, ScrollbarY;
+    bool Active;
+    bool WasActive;
+    bool WriteAccessed;
+    bool Collapsed;
+    bool WantCollapseToggle;
+    bool SkipItems;
+    bool Appearing;
+    bool Hidden;
+    bool IsFallbackWindow;
+    bool HasCloseButton;
+    signed char ResizeBorderHeld;
+    short BeginCount;
+    short BeginOrderWithinParent;
+    short BeginOrderWithinContext;
+    ImGuiID PopupId;
+    ImS8 AutoFitFramesX, AutoFitFramesY;
+    ImS8 AutoFitChildAxises;
+    bool AutoFitOnlyGrows;
+    ImGuiDir AutoPosLastDirection;
+    int HiddenFramesCanSkipItems;
+    int HiddenFramesCannotSkipItems;
+    ImGuiCond SetWindowPosAllowFlags;
+    ImGuiCond SetWindowSizeAllowFlags;
+    ImGuiCond SetWindowCollapsedAllowFlags;
+    ImVec2 SetWindowPosVal;
+    ImVec2 SetWindowPosPivot;
+    ImVector_ImGuiID IDStack;
+    ImGuiWindowTempData DC;
+    ImRect OuterRectClipped;
+    ImRect InnerRect;
+    ImRect InnerClipRect;
+    ImRect WorkRect;
+    ImRect ClipRect;
+    ImRect ContentRegionRect;
+    int LastFrameActive;
+    float LastTimeActive;
+    float ItemWidthDefault;
+    ImGuiStorage StateStorage;
+    ImVector_ImGuiColumns ColumnsStorage;
+    float FontWindowScale;
+    int SettingsOffset;
+    ImDrawList* DrawList;
+    ImDrawList DrawListInst;
+    ImGuiWindow* ParentWindow;
+    ImGuiWindow* RootWindow;
+    ImGuiWindow* RootWindowForTitleBarHighlight;
+    ImGuiWindow* RootWindowForNav;
+    ImGuiWindow* NavLastChildNavWindow;
+    ImGuiID NavLastIds[ImGuiNavLayer_COUNT];
+    ImRect NavRectRel[ImGuiNavLayer_COUNT];
+    bool MemoryCompacted;
+    int MemoryDrawListIdxCapacity;
+    int MemoryDrawListVtxCapacity;
+};
+```
+
+The struct_ImGuiWindowTempData struct defined immidiately before it translates fine in both versions
 ```
 pub const struct_ImGuiWindowTempData = extern struct {
     CursorPos: ImVec2,
     CursorPosPrevLine: ImVec2,
     CursorStartPos: ImVec2,
     CursorMaxPos: ImVec2,
+    //etc...
 ```
+
 
 
 
