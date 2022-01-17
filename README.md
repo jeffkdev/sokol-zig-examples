@@ -1,3 +1,21 @@
+# Branch cimgui_186_update
+Tracks issue where translate-c is converting ImGuiWindow to an opaque type.
+To test:
+```
+git clone 
+git checkout cimgui_186_update
+git submodule update --init --recursive
+cd src
+zig build
+```
+Current output
+```
+.\example_imgui.zig:56:16: error: no member named 'SkipItems' in opaque type '.cimport:1:20.struct_ImGuiWindow'
+    if (!window.SkipItems) {
+               ^
+```
+Expected output: compiles without errors
+
 # sokol-zig-examples
 
 Some of the Sokol examples running in Zig 0.9.0 (December 2021). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
