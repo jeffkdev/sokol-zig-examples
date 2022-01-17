@@ -1,5 +1,6 @@
 # Branch cimgui_186_update issue
-Tracks issue where translate-c is converting ImGuiWindow to an opaque type.
+Tracks issue where translate-c is converting ImGuiWindow to an opaque type. This is becuase imgui 1.80+ is using bitfields which Zig currently can't translate
+
 To test:
 ```
 git clone 
@@ -191,20 +192,6 @@ struct ImGuiWindow
     int MemoryDrawListVtxCapacity;
 };
 ```
-
-The struct_ImGuiWindowTempData struct defined immidiately before it translates fine in both versions
-```
-pub const struct_ImGuiWindowTempData = extern struct {
-    CursorPos: ImVec2,
-    CursorPosPrevLine: ImVec2,
-    CursorStartPos: ImVec2,
-    CursorMaxPos: ImVec2,
-    //etc...
-```
-
-
-
-
 
 # sokol-zig-examples
 
