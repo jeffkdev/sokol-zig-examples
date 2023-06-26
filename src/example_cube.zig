@@ -98,8 +98,8 @@ export fn init() void {
 export fn update() void {
     const width = c.sapp_width();
     const height = c.sapp_height();
-    const w: f32 = @intToFloat(f32, width);
-    const h: f32 = @intToFloat(f32, height);
+    const w: f32 = @floatFromInt(f32, width);
+    const h: f32 = @floatFromInt(f32, height);
     const radians: f32 = 1.0472; //60 degrees
     var proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
     var view: Mat4 = Mat4.createLookAt(Vec3.new(2.0, 3.5, 2.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
@@ -118,7 +118,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();

@@ -51,14 +51,15 @@ export fn update() void {
         c.igText("Hello");
         c.igEnd();
     }
-    const ig_context: *c.ImGuiContext = c.igGetCurrentContext();
-    const window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
-    if (!window.SkipItems) {
-        c.igText(
-            \\ Translate-c converts c.ImGuiWindow to an opaque type
-            \\ in imgui 1.80+ causing this to not compile
-        );
-    }
+    // If you want to try testing in imgui 1.80+, add this block of code:
+    //const ig_context: *c.ImGuiContext = c.igGetCurrentContext();
+    //const window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
+    //if (!window.SkipItems) {
+    //    c.igText(
+    //        \\ Translate-c converts c.ImGuiWindow to an opaque type
+    //        \\ in imgui 1.80+ causing this to not compile
+    //    );
+    //}
 
     if (show_test_window) {
         c.igSetNextWindowPos(c.ImVec2{ .x = 460, .y = 20 }, c.ImGuiCond_FirstUseEver, c.ImVec2{ .x = 0, .y = 0 });

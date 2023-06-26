@@ -88,17 +88,21 @@ export fn init() void {
 export fn update() void {
     const width = c.sapp_width();
     const height = c.sapp_height();
-    const w: f32 = @intToFloat(f32, width);
-    const h: f32 = @intToFloat(f32, height);
+    const w: f32 = @floatFromInt(f32, width);
+    const h: f32 = @floatFromInt(f32, height);
     const radians: f32 = 1.0472; //60 degrees
     const frame_time = 1.0 / 60.0;
+
+    // See git history for what this code *should* look like. This was modified to take a reference
+    // of the arrays to avoid copies to the stack on due to Zig compiler issues on 0.11.0-dev.3771+128fd7dd0
+    // Without taking a reference this will stack overflow.
 
     // emit new particles
     var i: u32 = 0;
     while (i < NumParticlesEmittedPerFrame) : (i += 1) {
         if (cur_num_particles < MaxParticles) {
-            pos[cur_num_particles] = Vec3.new(0, 0, 0);
-            vel[cur_num_particles] = Vec3.new(frnd(1) - 0.5, frnd(1) * 0.5 + 2.0, frnd(1) - 0.5);
+            (&pos)[cur_num_particles] = Vec3.new(0, 0, 0);
+            (&vel)[cur_num_particles] = Vec3.new(frnd(1) - 0.5, frnd(1) * 0.5 + 2.0, frnd(1) - 0.5);
             cur_num_particles += 1;
         } else {
             break;
@@ -107,17 +111,17 @@ export fn update() void {
     i = 0;
     // update particle positions
     while (i < cur_num_particles) : (i += 1) {
-        vel[i].y -= 1.0 * frame_time;
-        pos[i].x += vel[i].x * frame_time;
-        pos[i].y += vel[i].y * frame_time;
-        pos[i].z += vel[i].z * frame_time;
+        (&vel)[i].y -= 1.0 * frame_time;
+        (&pos)[i].x += (&vel)[i].x * frame_time;
+        (&pos)[i].y += (&vel)[i].y * frame_time;
+        (&pos)[i].z += (&vel)[i].z * frame_time;
         // bounce back from 'ground'
-        if (pos[i].y < -2.0) {
-            pos[i].y = -1.8;
-            vel[i].y = -vel[i].y;
-            vel[i].x *= 0.8;
-            vel[i].y *= 0.8;
-            vel[i].z *= 0.8;
+        if ((&pos)[i].y < -2.0) {
+            (&pos)[i].y = -1.8;
+            (&vel)[i].y = -(&vel)[i].y;
+            (&vel)[i].x *= 0.8;
+            (&vel)[i].y *= 0.8;
+            (&vel)[i].z *= 0.8;
         }
     }
 
@@ -138,7 +142,7 @@ export fn update() void {
     c.sg_begin_default_pass(&state.pass_action, width, height);
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &.{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 24, @intCast(c_int, cur_num_particles));
     c.sg_end_pass();
     c.sg_commit();
