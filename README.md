@@ -61,24 +61,27 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
 
 ### tasks.json
 ```
-  {
-    "tasks":[
-     {
-      "group":"build",
-      "problemMatcher":[
-       "$msCompile"
-      ],
-      "command":"zig build",
-      "label":"zig_build"
-     },
+{
+  "tasks":[
+   {
+    "group":"build",
+    "problemMatcher":[
+     "$msCompile"
     ],
-    "presentation":{
-     "reveal":"always",
-     "clear":true
+    "command":"zig build",
+    "label":"zig_build",
+    "options": {
+      "cwd": "${workspaceRoot}/src"
     },
-    "version":"2.0.0",
-    "type":"shell"
-   }
+   },
+  ],
+  "presentation":{
+   "reveal":"always",
+   "clear":true
+  },
+  "version":"2.0.0",
+  "type":"shell"
+ }
  ```
 ### launch.json
 ```
@@ -88,9 +91,9 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
    {
     "environment":[],
     "stopAtEntry":false,
-    "program":"${workspaceRoot}/zig-out/bin/program.exe",
+    "program":"${workspaceRoot}/src/zig-out/bin/program.exe",
     "name":"program",
-    "externalConsole":false,
+    "console":"integratedTerminal",
     "preLaunchTask":"zig_build",
     "request":"launch",
     "args":[],
