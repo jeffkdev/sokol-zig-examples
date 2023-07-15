@@ -33,7 +33,7 @@ export fn init() void {
     buffer_desc.type = c.SG_BUFFERTYPE_VERTEXBUFFER;
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
-    const shader_desc = @ptrCast([*c]const c.sg_shader_desc, glsl.triangle_shader_desc(glsl.sg_query_backend()));
+    const shader_desc: [*c]const c.sg_shader_desc = @ptrCast(glsl.triangle_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);

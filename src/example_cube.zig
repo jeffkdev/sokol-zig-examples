@@ -81,7 +81,7 @@ export fn init() void {
     buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
-    const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.cube_shader_desc(glsl.sg_query_backend()));
+    const shader_desc: [*]const c.sg_shader_desc = @ptrCast(glsl.cube_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
@@ -98,8 +98,8 @@ export fn init() void {
 export fn update() void {
     const width = c.sapp_width();
     const height = c.sapp_height();
-    const w: f32 = @floatFromInt(f32, width);
-    const h: f32 = @floatFromInt(f32, height);
+    const w: f32 = @floatFromInt(width);
+    const h: f32 = @floatFromInt(height);
     const radians: f32 = 1.0472; //60 degrees
     var proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
     var view: Mat4 = Mat4.createLookAt(Vec3.new(2.0, 3.5, 2.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));

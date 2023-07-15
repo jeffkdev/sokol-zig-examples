@@ -68,7 +68,7 @@ export fn init() void {
     instance_buffer_desc.usage = c.SG_USAGE_STREAM;
     state.main_bindings.vertex_buffers[1] = c.sg_make_buffer(&instance_buffer_desc);
 
-    const shader_desc = @ptrCast([*]const c.sg_shader_desc, glsl.instancing_shader_desc(glsl.sg_query_backend()));
+    const shader_desc: [*]const c.sg_shader_desc = @ptrCast(glsl.instancing_shader_desc(glsl.sg_query_backend()));
     const shader = c.sg_make_shader(shader_desc);
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
@@ -88,8 +88,8 @@ export fn init() void {
 export fn update() void {
     const width = c.sapp_width();
     const height = c.sapp_height();
-    const w: f32 = @floatFromInt(f32, width);
-    const h: f32 = @floatFromInt(f32, height);
+    const w: f32 = @floatFromInt(width);
+    const h: f32 = @floatFromInt(height);
     const radians: f32 = 1.0472; //60 degrees
     const frame_time = 1.0 / 60.0;
 
@@ -143,7 +143,7 @@ export fn update() void {
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
     c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
-    c.sg_draw(0, 24, @intCast(c_int, cur_num_particles));
+    c.sg_draw(0, 24, @intCast(cur_num_particles));
     c.sg_end_pass();
     c.sg_commit();
 }

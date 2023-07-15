@@ -22,7 +22,7 @@ export fn init() void {
 
 export fn update() void {
     c.sg_begin_default_pass(&pass_action, c.sapp_width(), c.sapp_height());
-    const num_frames = @intCast(u32, c.saudio_expect());
+    const num_frames: u32 = @intCast(c.saudio_expect());
     var s: f32 = 0.0;
     var i: u32 = 0;
     while (i < num_frames) {

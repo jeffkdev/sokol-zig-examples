@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.11.0-dev.3771+128fd7dd0 (June 22 2023). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
+Some of the Sokol examples running in Zig 0.11.0-dev.3859+88284c124 (June 27 2023). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
  - MacOS (OpenGL)
  
@@ -62,46 +62,46 @@ Debugging and breakpoints are working in Visual Studio Code. Ideally there would
 ### tasks.json
 ```
 {
-  "tasks":[
-   {
-    "group":"build",
-    "problemMatcher":[
-     "$msCompile"
+    "tasks": [
+        {
+            "group": "build",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "command": "zig build",
+            "label": "zig_build",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+        },
     ],
-    "command":"zig build",
-    "label":"zig_build",
-    "options": {
-      "cwd": "${workspaceRoot}/src"
+    "presentation": {
+        "reveal": "always",
+        "clear": true
     },
-   },
-  ],
-  "presentation":{
-   "reveal":"always",
-   "clear":true
-  },
-  "version":"2.0.0",
-  "type":"shell"
- }
+    "version": "2.0.0",
+    "type": "shell"
+}
  ```
 ### launch.json
 ```
 {
-  "version":"0.2.0",
-  "configurations":[
-   {
-    "environment":[],
-    "stopAtEntry":false,
-    "program":"${workspaceRoot}/src/zig-out/bin/program.exe",
-    "name":"program",
-    "console":"integratedTerminal",
-    "preLaunchTask":"zig_build",
-    "request":"launch",
-    "args":[],
-    "type":"cppvsdbg",
-    "cwd":"${workspaceRoot}"
-   }
-  ]
- }
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "environment": [],
+            "stopAtEntry": false,
+            "program": "${workspaceRoot}/zig-out/bin/program.exe",
+            "name": "program",
+            "console": "integratedTerminal",
+            "preLaunchTask": "zig_build",
+            "request": "launch",
+            "args": [],
+            "type": "cppvsdbg",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
  ```
 ## License
 

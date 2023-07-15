@@ -19,7 +19,7 @@ def main():
         filetowrite.write('#define SOKOL_SHDC_IMPL\n')
         filetowrite.write('#include "sokol/sokol_gfx.h"\n')
         filetowrite.write('#include "shaders/' + shader + '.glsl.h"\n')
-    print('    exe.addCSourceFile("../src/shaders/' + cfile +'", [_][]const u8{"-std=c99"});')
+    print('    exe.addCSourceFile("src/shaders/' + cfile +'", [_][]const u8{"-std=c99"});')
 
 if __name__== "__main__":
   main()

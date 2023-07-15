@@ -20,31 +20,30 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     var exe = b.addExecutable(
         .{
             .name = "program",
-            .root_source_file = .{ .path = main_file },
+            .root_source_file = .{ .path = "src/" ++ main_file },
             .optimize = mode,
         },
     );
-    var c_module = b.createModule(.{ .source_file = .{ .path = "c.zig" } });
-
+    exe.addIncludePath("src/");
+    var c_module = b.createModule(.{ .source_file = .{ .path = "src/c.zig" } });
     exe.addModule("c", c_module);
-    exe.addIncludePath("");
 
     const c_flags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
-    exe.addCSourceFile("compile_sokol.c", &c_flags);
+    exe.addCSourceFile("src/compile_sokol.c", &c_flags);
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
-    exe.addCSourceFile("cimgui/imgui/imgui.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/imgui/imgui.cpp", &cpp_args);
     // Need to add this after updating imgui to 1.80+
     // exe.addCSourceFile("../src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
-    exe.addCSourceFile("cimgui/imgui/imgui_demo.cpp", &cpp_args);
-    exe.addCSourceFile("cimgui/imgui/imgui_draw.cpp", &cpp_args);
-    exe.addCSourceFile("cimgui/imgui/imgui_widgets.cpp", &cpp_args);
-    exe.addCSourceFile("cimgui/cimgui.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/imgui/imgui_widgets.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/cimgui.cpp", &cpp_args);
 
     // Shaders
-    exe.addCSourceFile("shaders/cube_compile.c", &[_][]const u8{"-std=c99"});
-    exe.addCSourceFile("shaders/triangle_compile.c", &[_][]const u8{"-std=c99"});
-    exe.addCSourceFile("shaders/instancing_compile.c", &[_][]const u8{"-std=c99"});
+    exe.addCSourceFile("src/shaders/cube_compile.c", &[_][]const u8{"-std=c99"});
+    exe.addCSourceFile("src/shaders/triangle_compile.c", &[_][]const u8{"-std=c99"});
+    exe.addCSourceFile("src/shaders/instancing_compile.c", &[_][]const u8{"-std=c99"});
     exe.linkLibC();
 
     if (is_windows) {
