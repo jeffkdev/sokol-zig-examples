@@ -19,7 +19,7 @@ Clone
     git clone --recurse-submodules https://github.com/jeffkdev/sokol-zig-examples.git
     
     
-Navigate to the /src directory and run application using:
+Navigate to the root directory and run application using:
 
     zig build run
     
