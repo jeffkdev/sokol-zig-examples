@@ -26,8 +26,8 @@ export fn init() void {
 
     c.stm_setup();
 
-    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
-    state.pass_action.colors[0].value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
+    state.pass_action.colors[0].load_action = c.SG_LOADACTION_CLEAR;
+    state.pass_action.colors[0].clear_value = c.sg_color{ .r = 0.2, .g = 0.2, .b = 0.2, .a = 1.0 };
     const vertices = [_]f32{
         // positions     // colors
         -1.0, -1.0, -1.0, 1.0, 0.0, 0.0, 1.0,

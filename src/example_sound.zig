@@ -13,8 +13,9 @@ export fn init() void {
     c.sg_setup(&desc);
 
     pass_action = std.mem.zeroes(c.sg_pass_action);
-    pass_action.colors[0].action = c.SG_ACTION_CLEAR;
-    pass_action.colors[0].value = c.sg_color{ .r = 1.0, .g = 0.5, .b = 0.0, .a = 1.0 };
+
+    pass_action.colors[0].load_action = c.SG_LOADACTION_CLEAR;
+    pass_action.colors[0].clear_value = c.sg_color{ .r = 1.0, .g = 0.5, .b = 0.0, .a = 1.0 };
 
     const audio_desc = std.mem.zeroes(c.saudio_desc);
     c.saudio_setup(&audio_desc);

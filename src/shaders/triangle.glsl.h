@@ -32,12 +32,18 @@
             },
             ...});
 
-    Image bind slots, use as index in sg_bindings.vs_images[] or .fs_images[]
+
+    Image bind slots, use as index in sg_bindings.vs.images[] or .fs.images[]
+
+
+    Sampler bind slots, use as index in sg_bindings.vs.sampler[] or .fs.samplers[]
 
 
 */
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #if !defined(SOKOL_GFX_INCLUDED)
   #error "Please include sokol_gfx.h before triangle.glsl.h"
 #endif
@@ -114,7 +120,7 @@ const sg_shader_desc* triangle_shader_desc(sg_backend backend) {
       desc.fs.source = fs_source_glsl330;
       desc.fs.entry = "main";
       desc.label = "triangle_shader";
-    };
+    }
     return &desc;
   }
   return 0;

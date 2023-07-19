@@ -35,7 +35,11 @@
             },
             ...});
 
-    Image bind slots, use as index in sg_bindings.vs_images[] or .fs_images[]
+
+    Image bind slots, use as index in sg_bindings.vs.images[] or .fs.images[]
+
+
+    Sampler bind slots, use as index in sg_bindings.vs.sampler[] or .fs.samplers[]
 
 
     Bind slot and C-struct for uniform block 'vs_params':
@@ -48,6 +52,8 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #if !defined(SOKOL_GFX_INCLUDED)
   #error "Please include sokol_gfx.h before cube.glsl.h"
 #endif
@@ -135,13 +141,14 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
       desc.vs.source = vs_source_glsl330;
       desc.vs.entry = "main";
       desc.vs.uniform_blocks[0].size = 64;
+      desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
       desc.vs.uniform_blocks[0].uniforms[0].name = "vs_params";
       desc.vs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
       desc.vs.uniform_blocks[0].uniforms[0].array_count = 4;
       desc.fs.source = fs_source_glsl330;
       desc.fs.entry = "main";
       desc.label = "cube_shader";
-    };
+    }
     return &desc;
   }
   return 0;

@@ -24,22 +24,23 @@ export fn init() void {
     var imgui_desc = std.mem.zeroes(c.simgui_desc_t);
     c.simgui_setup(&imgui_desc);
 
-    state.pass_action.colors[0].action = c.SG_ACTION_CLEAR;
-    state.pass_action.colors[0].value = c.sg_color{ .r = clear_color[0], .g = clear_color[1], .b = clear_color[2], .a = 1.0 };
+    state.pass_action.colors[0].load_action = c.SG_LOADACTION_CLEAR;
+    state.pass_action.colors[0].clear_value = c.sg_color{ .r = clear_color[0], .g = clear_color[1], .b = clear_color[2], .a = 1.0 };
 }
 
 export fn update() void {
     const width = c.sapp_width();
     const height = c.sapp_height();
+
     const dt = c.stm_sec(c.stm_laptime(&last_time));
-    c.simgui_new_frame(width, height, dt);
+    c.simgui_new_frame(&c.simgui_frame_desc_t{ .width = width, .height = height, .delta_time = dt, .dpi_scale = 0.0 });
 
     c.igText("Hello, world!");
     _ = c.igSliderFloat("float", &f, 0.0, 1.0, "%.3f", 1.0);
     if (c.igColorEdit3("clear color", &clear_color[0], 0)) {
-        state.pass_action.colors[0].value.r = clear_color[0];
-        state.pass_action.colors[0].value.g = clear_color[1];
-        state.pass_action.colors[0].value.b = clear_color[2];
+        state.pass_action.colors[0].clear_value.r = clear_color[0];
+        state.pass_action.colors[0].clear_value.g = clear_color[1];
+        state.pass_action.colors[0].clear_value.b = clear_color[2];
     }
     if (c.igButton("Test Window", c.ImVec2{ .x = 0.0, .y = 0.0 })) show_test_window = !show_test_window;
     if (c.igButton("Another Window", c.ImVec2{ .x = 0.0, .y = 0.0 })) show_another_window = !show_another_window;

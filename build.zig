@@ -33,8 +33,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
     exe.addCSourceFile("src/cimgui/imgui/imgui.cpp", &cpp_args);
-    // Need to add this after updating imgui to 1.80+
-    // exe.addCSourceFile("../src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
+    exe.addCSourceFile("src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
     exe.addCSourceFile("src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
     exe.addCSourceFile("src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
     exe.addCSourceFile("src/cimgui/imgui/imgui_widgets.cpp", &cpp_args);
