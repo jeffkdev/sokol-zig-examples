@@ -24,25 +24,26 @@ pub fn build(b: *std.build.Builder) anyerror!void {
             .optimize = mode,
         },
     );
-    exe.addIncludePath("src/");
+    exe.addIncludePath(.{ .path = "src/" });
     var c_module = b.createModule(.{ .source_file = .{ .path = "src/c.zig" } });
     exe.addModule("c", c_module);
 
     const c_flags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
-    exe.addCSourceFile("src/compile_sokol.c", &c_flags);
+    exe.addCSourceFile(.{ .file = .{ .path = "src/compile_sokol.c" }, .flags = &c_flags });
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
-    exe.addCSourceFile("src/cimgui/imgui/imgui.cpp", &cpp_args);
-    exe.addCSourceFile("src/cimgui/imgui/imgui_tables.cpp", &cpp_args);
-    exe.addCSourceFile("src/cimgui/imgui/imgui_demo.cpp", &cpp_args);
-    exe.addCSourceFile("src/cimgui/imgui/imgui_draw.cpp", &cpp_args);
-    exe.addCSourceFile("src/cimgui/imgui/imgui_widgets.cpp", &cpp_args);
-    exe.addCSourceFile("src/cimgui/cimgui.cpp", &cpp_args);
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_tables.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_demo.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_draw.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_widgets.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/cimgui.cpp" }, .flags = &cpp_args });
 
     // Shaders
-    exe.addCSourceFile("src/shaders/cube_compile.c", &[_][]const u8{"-std=c99"});
-    exe.addCSourceFile("src/shaders/triangle_compile.c", &[_][]const u8{"-std=c99"});
-    exe.addCSourceFile("src/shaders/instancing_compile.c", &[_][]const u8{"-std=c99"});
+    const shader_flags = [_][]const u8{"-std=c99"};
+    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/cube_compile.c" }, .flags = &shader_flags });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/triangle_compile.c" }, .flags = &shader_flags });
+    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/instancing_compile.c" }, .flags = &shader_flags });
     exe.linkLibC();
 
     if (is_windows) {
