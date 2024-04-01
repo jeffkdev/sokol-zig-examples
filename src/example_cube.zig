@@ -101,15 +101,16 @@ export fn update() void {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
     const radians: f32 = 1.0472; //60 degrees
-    var proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
-    var view: Mat4 = Mat4.createLookAt(Vec3.new(2.0, 3.5, 2.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
-    var view_proj = Mat4.mul(proj, view);
+    const proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
+    const view: Mat4 = Mat4.createLookAt(Vec3.new(2.0, 3.5, 2.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
+    const view_proj = Mat4.mul(proj, view);
+
     rx += 1.0 / 220.0;
     ry += 2.0 / 220.0;
-    var rxm = Mat4.createAngleAxis(Vec3.new(1, 0, 0), rx);
-    var rym = Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry);
+    const rxm = Mat4.createAngleAxis(Vec3.new(1, 0, 0), rx);
+    const rym = Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry);
 
-    var model = Mat4.mul(rxm, rym);
+    const model = Mat4.mul(rxm, rym);
     var mvp = Mat4.mul(view_proj, model);
     var vs_params = glsl.vs_params_t{
         .mvp = mvp.toArray(),

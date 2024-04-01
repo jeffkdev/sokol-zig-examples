@@ -131,9 +131,9 @@ export fn update() void {
         .size = cur_num_particles * @sizeOf(Vec3),
     });
 
-    var proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
-    var view: Mat4 = Mat4.createLookAt(Vec3.new(0.0, 1.5, 12.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
-    var view_proj = Mat4.mul(proj, view);
+    const proj: Mat4 = Mat4.createPerspective(radians, w / h, 0.01, 100.0);
+    const view: Mat4 = Mat4.createLookAt(Vec3.new(0.0, 1.5, 12.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
+    const view_proj = Mat4.mul(proj, view);
     ry += 2.0 / 400.0;
     var vs_params = glsl.vs_params_t{
         .mvp = Mat4.mul(view_proj, Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry)).toArray(),

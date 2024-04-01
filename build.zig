@@ -6,7 +6,7 @@ const build_root = "../build/";
 const is_windows = builtin.target.os.tag == .windows;
 const is_macos = builtin.target.os.tag == .macos;
 
-pub fn build(b: *std.build.Builder) anyerror!void {
+pub fn build(b: *std.Build) anyerror!void {
     // Change this to .ReleaseFast, .ReleaseSafe, or .ReleaseSmall to compile in release mode
     const mode: std.builtin.OptimizeMode = .Debug;
 
@@ -22,11 +22,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
             .name = "program",
             .root_source_file = .{ .path = "src/" ++ main_file },
             .optimize = mode,
+            .target = std.Build.resolveTargetQuery(b, std.Target.Query{}),
         },
     );
     exe.addIncludePath(.{ .path = "src/" });
-    var c_module = b.createModule(.{ .source_file = .{ .path = "src/c.zig" } });
-    exe.addModule("c", c_module);
+    const c_module = b.createModule(.{ .root_source_file = .{ .path = "src/c.zig" } });
+
+    exe.root_module.addImport("c", c_module);
 
     const c_flags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
     exe.addCSourceFile(.{ .file = .{ .path = "src/compile_sokol.c" }, .flags = &c_flags });
@@ -80,7 +82,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 }
 
 // helper function to get SDK path on Mac sourced from: https://github.com/floooh/sokol-zig
-fn macos_frameworks_dir(b: *std.build.Builder) ![]u8 {
+fn macos_frameworks_dir(b: *std.Build) ![]u8 {
     var str = try b.exec(&[_][]const u8{ "xcrun", "--show-sdk-path" });
     const strip_newline = std.mem.lastIndexOf(u8, str, "\n");
     if (strip_newline) |index| {

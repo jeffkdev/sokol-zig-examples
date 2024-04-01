@@ -127,7 +127,7 @@ pub const Mat4 = extern struct {
 
     // taken from GLM implementation
     pub fn createPerspective(fov: f32, aspect: f32, near: f32, far: f32) Self {
-        std.debug.assert(std.math.fabs(aspect - 0.001) > 0);
+        std.debug.assert(@abs(aspect - 0.001) > 0);
         std.debug.assert(far > near);
         const tanHalfFov = std.math.tan(fov / 2);
 
@@ -141,11 +141,11 @@ pub const Mat4 = extern struct {
     }
 
     pub fn createAngleAxis(axis: Vec3, angle: f32) Self {
-        var cos = std.math.cos(angle);
-        var sin = std.math.sin(angle);
-        var x = axis.x;
-        var y = axis.y;
-        var z = axis.z;
+        const cos = std.math.cos(angle);
+        const sin = std.math.sin(angle);
+        const x = axis.x;
+        const y = axis.y;
+        const z = axis.z;
 
         return Self{
             .fields = [4][4]f32{
@@ -170,7 +170,7 @@ pub const Mat4 = extern struct {
 
     pub fn toArray(m: Self) [16]f32 {
         var result: [16]f32 = undefined;
-        var i :usize = 0;
+        var i: usize = 0;
         inline for ([_]comptime_int{ 0, 1, 2, 3 }) |col| {
             inline for ([_]comptime_int{ 0, 1, 2, 3 }) |row| {
                 result[i] = m.fields[col][row];
