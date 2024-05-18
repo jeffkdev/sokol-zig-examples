@@ -30,7 +30,7 @@ fn frnd(range: f32) f32 {
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
-    desc.context = c.sapp_sgcontext();
+    desc.environment = c.sglue_environment();
     c.sg_setup(&desc);
     c.stm_setup();
 
@@ -139,7 +139,7 @@ export fn update() void {
         .mvp = Mat4.mul(view_proj, Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry)).toArray(),
     };
 
-    c.sg_begin_default_pass(&state.pass_action, width, height);
+    c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
     c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });

@@ -15,7 +15,7 @@ var state: State = undefined;
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
-    desc.context = c.sapp_sgcontext();
+    desc.environment = c.sglue_environment();
     c.sg_setup(&desc);
 
     state.pass_action.colors[0].load_action = c.SG_LOADACTION_CLEAR;
@@ -44,9 +44,7 @@ export fn init() void {
 }
 
 export fn update() void {
-    const width = c.sapp_width();
-    const height = c.sapp_height();
-    c.sg_begin_default_pass(&state.pass_action, width, height);
+    c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
     c.sg_draw(0, 3, 1);

@@ -17,7 +17,7 @@ var clear_color: [3]f32 = .{ 0.2, 0.2, 0.2 };
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
-    desc.context = c.sapp_sgcontext();
+    desc.environment = c.sglue_environment();
     c.sg_setup(&desc);
     c.stm_setup();
 
@@ -67,7 +67,7 @@ export fn update() void {
         c.igShowDemoWindow(0);
     }
 
-    c.sg_begin_default_pass(&state.pass_action, width, height);
+    c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.simgui_render();
     c.sg_end_pass();
     c.sg_commit();

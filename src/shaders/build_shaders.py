@@ -10,7 +10,7 @@ def main():
   shaders = ["cube","triangle","instancing"]
   print("Add to build.zig:")
   for shader in shaders:
-    config =  " --input " + src_path + shader + ".glsl" +" --output " + out_path + shader +".glsl.h" + " --slang glsl330 --format sokol_impl"
+    config =  " --input " + src_path + shader + ".glsl" +" --output " + out_path + shader +".glsl.h" + " --slang glsl430 --format sokol_impl"
     cmd = exe_path + config
     subprocess.check_call(cmd)
     cfile = shader + "_compile.c"

@@ -9,7 +9,7 @@ var even_odd: u32 = 0;
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
-    desc.context = c.sapp_sgcontext();
+    desc.environment = c.sglue_environment();
     c.sg_setup(&desc);
 
     pass_action = std.mem.zeroes(c.sg_pass_action);
@@ -22,7 +22,7 @@ export fn init() void {
 }
 
 export fn update() void {
-    c.sg_begin_default_pass(&pass_action, c.sapp_width(), c.sapp_height());
+    c.sg_begin_pass(&(c.sg_pass){ .action = pass_action, .swapchain = c.sglue_swapchain() });
     const num_frames: u32 = @intCast(c.saudio_expect());
     var s: f32 = 0.0;
     var i: u32 = 0;
