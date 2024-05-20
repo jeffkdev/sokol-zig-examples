@@ -49,7 +49,7 @@ valid files are:
 The "glsl.h" shader files are generates from the ".glsl" files using. [sokol-shdc](https://github.com/floooh/sokol-tools). Since the glsl.h files are not created automatically when building right now they are checked in as well. If you modify the files, they can be re-generated using the command:
 
 ```
-sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl330 --format sokol_impl
+sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl430 --format sokol_impl
 ```
 A python file build_shaders.py is included for convenience that will create the required glsl.h files and the *_compile.c files which calls the above command for each listed file (requires sokol-shdc.exe in the environment paths).
 
