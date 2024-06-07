@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.12.0 (April 2024). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
+Some of the Sokol examples running in Zig 0.13.0 (June 2024). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
  - MacOS (OpenGL)
  

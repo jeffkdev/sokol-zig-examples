@@ -20,32 +20,33 @@ pub fn build(b: *std.Build) anyerror!void {
     var exe = b.addExecutable(
         .{
             .name = "program",
-            .root_source_file = .{ .path = "src/" ++ main_file },
+            .root_source_file = b.path("src/" ++ main_file),
             .optimize = mode,
             .target = std.Build.resolveTargetQuery(b, std.Target.Query{}),
         },
     );
-    exe.addIncludePath(.{ .path = "src/" });
-    const c_module = b.createModule(.{ .root_source_file = .{ .path = "src/c.zig" } });
+
+    exe.addIncludePath(b.path("src/"));
+    const c_module = b.createModule(.{ .root_source_file = .{ .src_path = .{ .sub_path = "src/c.zig", .owner = b } } });
 
     exe.root_module.addImport("c", c_module);
 
     const c_flags = if (is_macos) [_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc" } else [_][]const u8{"-std=c99"};
-    exe.addCSourceFile(.{ .file = .{ .path = "src/compile_sokol.c" }, .flags = &c_flags });
+    exe.addCSourceFile(.{ .file = .{ .src_path = .{ .owner = b, .sub_path = "src/compile_sokol.c" } }, .flags = &c_flags });
 
     const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui.cpp" }, .flags = &cpp_args });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_tables.cpp" }, .flags = &cpp_args });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_demo.cpp" }, .flags = &cpp_args });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_draw.cpp" }, .flags = &cpp_args });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/imgui/imgui_widgets.cpp" }, .flags = &cpp_args });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/cimgui/cimgui.cpp" }, .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui.cpp"), .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_tables.cpp"), .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_demo.cpp"), .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_draw.cpp"), .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_widgets.cpp"), .flags = &cpp_args });
+    exe.addCSourceFile(.{ .file = b.path("src/cimgui/cimgui.cpp"), .flags = &cpp_args });
 
     // Shaders
     const shader_flags = [_][]const u8{"-std=c99"};
-    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/cube_compile.c" }, .flags = &shader_flags });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/triangle_compile.c" }, .flags = &shader_flags });
-    exe.addCSourceFile(.{ .file = .{ .path = "src/shaders/instancing_compile.c" }, .flags = &shader_flags });
+    exe.addCSourceFile(.{ .file = b.path("src/shaders/cube_compile.c"), .flags = &shader_flags });
+    exe.addCSourceFile(.{ .file = b.path("src/shaders/triangle_compile.c"), .flags = &shader_flags });
+    exe.addCSourceFile(.{ .file = b.path("src/shaders/instancing_compile.c"), .flags = &shader_flags });
     exe.linkLibC();
 
     if (is_windows) {
