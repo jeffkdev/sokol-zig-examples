@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // Builds all examples and runs configured example
+        // TODO: Need a way to forward input to prelaunchtask to build only one at a time:
+        //    https://github.com/microsoft/vscode/issues/27157
+        {
+            "environment": [],
+            "stopAtEntry": false,
+            "program": "${workspaceRoot}/zig-out/bin/${input:example}.exe",
+            "name": "Build Run Example",
+            "console": "integratedTerminal",
+            "preLaunchTask": "zig_build",
+            "request": "launch",
+            "args": [],
+            "type": "cppvsdbg",
+            "cwd": "${workspaceRoot}"
+        },
+    ],
+    "inputs": [
+        {
+            "id": "example",
+            "description": "Run Example:",
+            "default": "example_cube",
+            "type": "pickString",
+            "options": [
+                "example_cube",
+                "example_imgui",
+                "example_instancing",
+                "example_sound",
+                "example_triangle",
+            ],
+        },
+    ],
+}

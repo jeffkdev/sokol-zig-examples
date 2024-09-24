@@ -1,0 +1,22 @@
+{
+    "tasks": [
+        {
+            "group": "build",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "command": "zig build",
+            "label": "zig_build",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+        },
+    ],
+
+    "presentation": {
+        "reveal": "always",
+        "clear": true
+    },
+    "version": "2.0.0",
+    "type": "shell"
+}

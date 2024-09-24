@@ -23,10 +23,22 @@ Clone
 Navigate to the root directory and run application using:
 
     zig build run
-    
+
+This will build all examples and run the first valid example defined
    
-To run different examples change the main file in the build.zig file:
-```    const main_file = "example_instancing.zig"; ```
+To build and run a specific example use the `-Dmain=` argument:
+```
+zig build -Dmain=example_cube run
+zig build -Dmain=example_imgui run
+zig build -Dmain=example_instancing run
+zig build -Dmain=example_sound run
+zig build -Dmain=example_triangle run
+```
+This will skip building any other examples
+
+Use the standard release options to specify mode. Ex:
+`zig build -Dmain=example_cube -Doptimize=ReleaseFast run`
+
 
 valid files are:
   example_imgui.zig
@@ -71,9 +83,11 @@ If you are using the standard thread pool (Pool.zig) in Zig 0.13.0 it will give 
 const thread_count = options.n_jobs orelse @max(1, std.Thread.getCpuCount() catch 1);
 ```
 
-Then when you compile include atomics in the zig build CPU arguments: `zig build -Dtarget=wasm32-emscripten -Dcpu=bleeding_edge+atomics run`
+Then when you compile include atomics in the zig build CPU arguments: `zig build -Dtarget=wasm32-emscripten -Dcpu=bleeding_edge+atomics -Doptimize=ReleaseFast run`
 
-Also if your game to itch.io you will need to enable  the `SharedArrayBuffer support` option
+The std.heap.GeneralPurposeAllocator looks like it might have some issues with WASM. Switching to std.heap.c_allocator fixed the issue.
+
+Also if you upload your game to itch.io you will need to enable the `SharedArrayBuffer support` option for multi-threading.
 
 ## Shaders
 
@@ -88,52 +102,8 @@ The "--format sokol_impl" is important, otherwise they will be generated with in
 
 ## Debugging
 
-Debugging and breakpoints are working in Visual Studio Code. Ideally there would be a launch config for each example, but right now it just runs the program.exe that is created from the zig build. Two files are required in the .vscode folder (not included in repo):
 
-### tasks.json
-```
-{
-    "tasks": [
-        {
-            "group": "build",
-            "problemMatcher": [
-                "$msCompile"
-            ],
-            "command": "zig build",
-            "label": "zig_build",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-        },
-    ],
-    "presentation": {
-        "reveal": "always",
-        "clear": true
-    },
-    "version": "2.0.0",
-    "type": "shell"
-}
- ```
-### launch.json
-```
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "environment": [],
-            "stopAtEntry": false,
-            "program": "${workspaceRoot}/zig-out/bin/program.exe",
-            "name": "program",
-            "console": "integratedTerminal",
-            "preLaunchTask": "zig_build",
-            "request": "launch",
-            "args": [],
-            "type": "cppvsdbg",
-            "cwd": "${workspaceRoot}"
-        }
-    ]
-}
- ```
+Debugging and breakpoints are working in Visual Studio Code. Run and Debug (F5) will prompt for a file to run and build. 
 ## License
 
 Example files are based on the sokol-examples so they are probably considered a derivate work, so the MIT license will carry on to those as well.

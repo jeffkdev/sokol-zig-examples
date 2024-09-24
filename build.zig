@@ -7,32 +7,116 @@ const Step = Build.Step;
 const emscripten = @import("src/emscripten.zig");
 
 pub fn build(b: *std.Build) anyerror!void {
-    // TODO: Use mode from command line args
-    // Change this to .ReleaseFast, .ReleaseSafe, or .ReleaseSmall to compile in release mode
-    const mode: std.builtin.OptimizeMode = .Debug;
     const target = b.standardTargetOptions(.{});
+    // Include release mode in build argmuents for non-Debug builds. For example: -Doptimize=ReleaseFast
+    const optimize = b.standardOptimizeOption(.{});
 
-    // TODO: Use command line arg to build different examples
-    // For now rename the main_file to one of the follow:
-    //     example_cube.zig, example_imgui.zig, example_instancing.zig, example_sound.zig, example_triangle.zig
-    const main_file = "example_cube.zig";
-    if (target.result.isWasm()) {
-        try buildWeb(b, target, mode, main_file);
-    } else {
-        var exe = b.addExecutable(
-            .{
-                .name = "program",
-                .root_source_file = b.path("src/" ++ main_file),
-                .optimize = mode,
-                .target = std.Build.resolveTargetQuery(b, std.Target.Query{}),
-            },
-        );
-        try addImports(b, target, exe, null);
+    // Choose the example with the -Dmain parameter. Ex: zig build -Dmain=example_imgui run
+    // Omit argument to build all example
+    // If using VS code the examples need to manually added to launch.json input options
+    const examples = [_][]const u8{
+        "example_cube",
+        "example_imgui",
+        "example_instancing",
+        "example_sound",
+        "example_triangle",
+    };
+    var main_file_maybe: ?[]const u8 = null;
+    if (b.option([]const u8, "main", "Build specific example")) |result| {
+        main_file_maybe = result;
+    }
+
+    // Validate main file string is included in the list
+    if (main_file_maybe) |main_file| {
+        blk: {
+            for (examples) |example| {
+                if (std.mem.eql(u8, main_file, example)) {
+                    break :blk;
+                }
+            }
+            std.debug.panic("Main file '{s}' not found. Use one of the following: {s}", .{ main_file, examples });
+            break :blk;
+        }
+    }
+
+    inline for (examples, 0..) |example, i| {
+        // If building specific example then add run option that one, otherwise if building all examples with a run step arbitrarily run the first one
+        const include_run_step = main_file_maybe != null or (main_file_maybe == null and i == 0);
+        if (main_file_maybe == null or std.mem.eql(u8, main_file_maybe.?, example)) {
+            if (!target.result.isWasm()) {
+                try buildDefault(b, target, optimize, example, include_run_step);
+            } else {
+                try buildWeb(b, target, optimize, example, include_run_step);
+            }
+        }
+    }
+}
+
+fn buildDefault(b: *Build, target: Build.ResolvedTarget, optimize: OptimizeMode, comptime name: []const u8, include_run_step: bool) !void {
+    const file_with_extension = name ++ ".zig";
+    const root_source_file = "src/" ++ file_with_extension;
+
+    var exe = b.addExecutable(
+        .{
+            .name = name,
+            .root_source_file = b.path(root_source_file),
+            .optimize = optimize,
+            .target = std.Build.resolveTargetQuery(b, std.Target.Query{}),
+        },
+    );
+    try addImports(b, target, exe, null);
+    if (include_run_step) {
         const run_cmd = b.addRunArtifact(exe);
         const run_step = b.step("run", "Run the app");
         run_step.dependOn(&run_cmd.step);
-        b.default_step.dependOn(&exe.step);
-        b.installArtifact(exe);
+    }
+
+    b.default_step.dependOn(&exe.step);
+    b.installArtifact(exe);
+}
+
+// for web builds, the Zig code needs to be built into a library and linked with the Emscripten linker
+fn buildWeb(b: *Build, target: Build.ResolvedTarget, optimize: OptimizeMode, comptime name: []const u8, include_run_step: bool) !void {
+    const file_with_extension = name ++ ".zig";
+    const root_source_file = "src/" ++ file_with_extension;
+
+    const game = b.addStaticLibrary(.{
+        .name = name,
+        .target = target,
+        .optimize = optimize,
+        .root_source_file = b.path(root_source_file),
+    });
+    const emsdk = b.dependency("emsdk", .{});
+
+    try addImports(b, target, game, emsdk);
+    // create a build step which invokes the Emscripten linker
+    // const emsdk = dep_sokol.builder.dependency("emsdk", .{});
+    const link_step = try emscripten.emLinkStep(b, .{
+        .lib_main = game,
+        .target = target,
+        .optimize = optimize,
+        .emsdk = emsdk,
+        .use_webgl2 = true,
+        .use_emmalloc = true,
+        .use_filesystem = false,
+        .shell_file_path = b.path("src/web/shell.html"),
+        .extra_args = &.{
+            // Zig allocators use the @returnAddress builtin, which isn't supported in the Emscripten runtime out of the box
+            // (you'll get a runtime error in the browser's Javascript console looking like this: Cannot use convertFrameToPC
+            // (needed by __builtin_return_address) without -sUSE_OFFSET_CONVERTER. To make it work, do as the error message says,
+            // to add the -sUSE_OFFSET_CONVERTER arg to the Emscripten linker step in your build.zig file:
+            "-sUSE_OFFSET_CONVERTER=1",
+            // Allow memory growth
+            "-sALLOW_MEMORY_GROWTH=1",
+            // 1 MB stack to match windows default
+            "-sSTACK_SIZE= 1048576",
+        },
+    });
+    if (include_run_step) {
+        // ...and a special run step to start the web build output via 'emrun'
+        const run = emscripten.emRunStep(b, .{ .name = name, .emsdk = emsdk });
+        run.step.dependOn(&link_step.step);
+        b.step("run", "Run game").dependOn(&run.step);
     }
 }
 
@@ -112,45 +196,4 @@ fn targetToBackendFlag(target: std.Target) []const u8 {
     } else {
         return "-DSOKOL_GLCORE";
     }
-}
-
-// for web builds, the Zig code needs to be built into a library and linked with the Emscripten linker
-fn buildWeb(b: *Build, target: Build.ResolvedTarget, optimize: OptimizeMode, comptime file_with_extension: []const u8) !void {
-    const name = file_with_extension[0 .. file_with_extension.len - 4];
-    const game = b.addStaticLibrary(.{
-        .name = name,
-        .target = target,
-        .optimize = optimize,
-        .root_source_file = b.path("src/" ++ file_with_extension),
-    });
-    const emsdk = b.dependency("emsdk", .{});
-
-    try addImports(b, target, game, emsdk);
-    // create a build step which invokes the Emscripten linker
-    // const emsdk = dep_sokol.builder.dependency("emsdk", .{});
-    const link_step = try emscripten.emLinkStep(b, .{
-        .lib_main = game,
-        .target = target,
-        .optimize = optimize,
-        .emsdk = emsdk,
-        .use_webgl2 = true,
-        .use_emmalloc = true,
-        .use_filesystem = false,
-        .shell_file_path = b.path("src/web/shell.html"),
-        .extra_args = &.{
-            // Zig allocators use the @returnAddress builtin, which isn't supported in the Emscripten runtime out of the box
-            // (you'll get a runtime error in the browser's Javascript console looking like this: Cannot use convertFrameToPC
-            // (needed by __builtin_return_address) without -sUSE_OFFSET_CONVERTER. To make it work, do as the error message says,
-            // to add the -sUSE_OFFSET_CONVERTER arg to the Emscripten linker step in your build.zig file:
-            "-sUSE_OFFSET_CONVERTER=1",
-            // Allow memory growth
-            "-sALLOW_MEMORY_GROWTH=1",
-            // 1 MB stack to match windows default
-            "-sSTACK_SIZE= 1048576",
-        },
-    });
-    // ...and a special run step to start the web build output via 'emrun'
-    const run = emscripten.emRunStep(b, .{ .name = name, .emsdk = emsdk });
-    run.step.dependOn(&link_step.step);
-    b.step("run", "Run game").dependOn(&run.step);
 }
