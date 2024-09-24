@@ -81,8 +81,7 @@ export fn init() void {
     buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
-    const shader_desc: [*]const c.sg_shader_desc = @ptrCast(glsl.cube_shader_desc(glsl.sg_query_backend()));
-    const shader = c.sg_make_shader(shader_desc);
+    const shader = c.sg_make_shader(@ptrCast(glsl.cube_shader_desc(glsl.sg_query_backend())));
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
     pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;

@@ -1,5 +1,4 @@
 pub usingnamespace @cImport({
-    @cDefine("SOKOL_GLCORE", "");
     @cInclude("sokol/sokol_app.h");
     @cInclude("sokol/sokol_gfx.h");
     @cInclude("sokol/sokol_time.h");

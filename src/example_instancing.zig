@@ -68,8 +68,7 @@ export fn init() void {
     instance_buffer_desc.usage = c.SG_USAGE_STREAM;
     state.main_bindings.vertex_buffers[1] = c.sg_make_buffer(&instance_buffer_desc);
 
-    const shader_desc: [*]const c.sg_shader_desc = @ptrCast(glsl.instancing_shader_desc(glsl.sg_query_backend()));
-    const shader = c.sg_make_shader(shader_desc);
+    const shader = c.sg_make_shader(@ptrCast(glsl.instancing_shader_desc(glsl.sg_query_backend())));
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
     pipeline_desc.layout.attrs[glsl.ATTR_vs_pos].format = c.SG_VERTEXFORMAT_FLOAT3;

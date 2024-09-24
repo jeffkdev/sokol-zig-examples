@@ -2,7 +2,8 @@
 
 Some of the Sokol examples running in Zig 0.13.0 (June 2024). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
- - MacOS (OpenGL)
+ - Web (GLES3)
+ - MacOS (OpenGL) [Not recently tested, may not work]
  
 With some modifications to the build.zig script it could be modified to target other platforms.
 
@@ -42,14 +43,44 @@ valid files are:
 
   example_sound.zig
 (plays beeping sound, blank screen)
-  
-  
+
+## WASM
+All examples should work in the web browser using:
+```
+zig build -Dtarget=wasm32-emscripten run
+```
+
+This repo shows how to support web assembly builds using the sokol c code directly without the zig wrapper. The code was migrated from https://github.com/floooh/sokol-zig. See the source repo for more details. It will download the emscripten version defined in build.zig.zon automatically so the first compile will take longer.
+
+# WASM multi-threading
+
+A multi-threading example is not yet included in this repo, but if you want to support multi-threading you should be able to get it working by adding additional arguments to th emLinkStep:
+```zig
+        // Required for LTO while bug exists: https://github.com/emscripten-core/emscripten/issues/16836
+        "-Wl,-u,_emscripten_run_callback_on_thread",
+        "-pthread",
+        "-satomics=1",
+        // Set to whatever pool size
+        "-sPTHREAD_POOL_SIZE=8",
+        // -pthread + ALLOW_MEMORY_GROWTH may run non-wasm code slowly, see https://github.com/WebAssembly/design/issues/1271
+        "-Wpthreads-mem-growth", 
+```
+
+If you are using the standard thread pool (Pool.zig) in Zig 0.13.0 it will give you an error using `std.Thread.getCpuCount()` on WASM. You can work around this by checking if `@import("builtin").target.isWasm()` and providing an explicit thread pool count and then compiling in release mode so it will be compiled away.
+```zig
+const thread_count = options.n_jobs orelse @max(1, std.Thread.getCpuCount() catch 1);
+```
+
+Then when you compile include atomics in the zig build CPU arguments: `zig build -Dtarget=wasm32-emscripten -Dcpu=bleeding_edge+atomics run`
+
+Also if your game to itch.io you will need to enable  the `SharedArrayBuffer support` option
+
 ## Shaders
 
 The "glsl.h" shader files are generates from the ".glsl" files using. [sokol-shdc](https://github.com/floooh/sokol-tools). Since the glsl.h files are not created automatically when building right now they are checked in as well. If you modify the files, they can be re-generated using the command:
 
 ```
-sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl430 --format sokol_impl
+sokol-shdc.exe --input cube.glsl --output cube.glsl.h --slang glsl430:metal_macos:hlsl5:glsl300es:wgsl --format sokol_impl
 ```
 A python file build_shaders.py is included for convenience that will create the required glsl.h files and the *_compile.c files which calls the above command for each listed file (requires sokol-shdc.exe in the environment paths).
 
