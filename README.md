@@ -52,7 +52,7 @@ zig build -Dtarget=wasm32-emscripten run
 
 This repo shows how to support web assembly builds using the sokol c code directly without the zig wrapper. The code was migrated from https://github.com/floooh/sokol-zig. See the source repo for more details. It will download the emscripten version defined in build.zig.zon automatically so the first compile will take longer.
 
-# WASM multi-threading
+### WASM multi-threading
 
 A multi-threading example is not yet included in this repo, but if you want to support multi-threading you should be able to get it working by adding additional arguments to th emLinkStep:
 ```zig
