@@ -36,8 +36,8 @@ export fn init() void {
     const shader = c.sg_make_shader(@ptrCast(glsl.triangle_shader_desc(glsl.sg_query_backend())));
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[glsl.ATTR_triangle_position].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_triangle_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
     pipeline_desc.shader = shader;
     state.main_pipeline = c.sg_make_pipeline(&pipeline_desc);
 }

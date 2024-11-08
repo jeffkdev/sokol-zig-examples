@@ -71,10 +71,10 @@ export fn init() void {
     const shader = c.sg_make_shader(@ptrCast(glsl.instancing_shader_desc(glsl.sg_query_backend())));
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_inst_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_vs_inst_pos].buffer_index = 1;
+    pipeline_desc.layout.attrs[glsl.ATTR_instancing_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_instancing_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[glsl.ATTR_instancing_inst_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_instancing_inst_pos].buffer_index = 1;
     pipeline_desc.layout.buffers[1].step_func = c.SG_VERTEXSTEP_PER_INSTANCE;
     pipeline_desc.shader = shader;
     pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
@@ -141,7 +141,7 @@ export fn update() void {
     c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, glsl.SLOT_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(glsl.UB_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 24, @intCast(cur_num_particles));
     c.sg_end_pass();
     c.sg_commit();

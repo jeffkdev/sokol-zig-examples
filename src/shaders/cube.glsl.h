@@ -11,14 +11,15 @@
     =========
     Shader program: 'cube':
         Get shader desc: cube_shader_desc(sg_query_backend());
-        Vertex shader: vs
-            Attributes:
-                ATTR_vs_position => 0
-                ATTR_vs_color0 => 1
-            Uniform block 'vs_params':
-                C struct: vs_params_t
-                Bind slot: SLOT_vs_params => 0
-        Fragment shader: fs
+        Vertex Shader: vs
+        Fragment Shader: fs
+        Attributes:
+            ATTR_cube_position => 0
+            ATTR_cube_color0 => 1
+    Bindings:
+        Uniform block 'vs_params':
+            C struct: vs_params_t
+            Bind slot: UB_vs_params => 0
 */
 #if !defined(SOKOL_GFX_INCLUDED)
 #error "Please include sokol_gfx.h before cube.glsl.h"
@@ -31,9 +32,9 @@
 #endif
 #endif
 const sg_shader_desc* cube_shader_desc(sg_backend backend);
-#define ATTR_vs_position (0)
-#define ATTR_vs_color0 (1)
-#define SLOT_vs_params (0)
+#define ATTR_cube_position (0)
+#define ATTR_cube_color0 (1)
+#define UB_vs_params (0)
 #pragma pack(push,1)
 SOKOL_SHDC_ALIGN(16) typedef struct vs_params_t {
     float mvp[16];
@@ -570,17 +571,18 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
         static bool valid;
         if (!valid) {
             valid = true;
-            desc.attrs[0].name = "position";
-            desc.attrs[1].name = "color0";
-            desc.vs.source = (const char*)vs_source_glsl430;
-            desc.vs.entry = "main";
-            desc.vs.uniform_blocks[0].size = 64;
-            desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-            desc.vs.uniform_blocks[0].uniforms[0].name = "vs_params";
-            desc.vs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
-            desc.vs.uniform_blocks[0].uniforms[0].array_count = 4;
-            desc.fs.source = (const char*)fs_source_glsl430;
-            desc.fs.entry = "main";
+            desc.vertex_func.source = (const char*)vs_source_glsl430;
+            desc.vertex_func.entry = "main";
+            desc.fragment_func.source = (const char*)fs_source_glsl430;
+            desc.fragment_func.entry = "main";
+            desc.attrs[0].glsl_name = "position";
+            desc.attrs[1].glsl_name = "color0";
+            desc.uniform_blocks[0].stage = SG_SHADERSTAGE_VERTEX;
+            desc.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+            desc.uniform_blocks[0].size = 64;
+            desc.uniform_blocks[0].glsl_uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
+            desc.uniform_blocks[0].glsl_uniforms[0].array_count = 4;
+            desc.uniform_blocks[0].glsl_uniforms[0].glsl_name = "vs_params";
             desc.label = "cube_shader";
         }
         return &desc;
@@ -590,17 +592,18 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
         static bool valid;
         if (!valid) {
             valid = true;
-            desc.attrs[0].name = "position";
-            desc.attrs[1].name = "color0";
-            desc.vs.source = (const char*)vs_source_glsl300es;
-            desc.vs.entry = "main";
-            desc.vs.uniform_blocks[0].size = 64;
-            desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-            desc.vs.uniform_blocks[0].uniforms[0].name = "vs_params";
-            desc.vs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
-            desc.vs.uniform_blocks[0].uniforms[0].array_count = 4;
-            desc.fs.source = (const char*)fs_source_glsl300es;
-            desc.fs.entry = "main";
+            desc.vertex_func.source = (const char*)vs_source_glsl300es;
+            desc.vertex_func.entry = "main";
+            desc.fragment_func.source = (const char*)fs_source_glsl300es;
+            desc.fragment_func.entry = "main";
+            desc.attrs[0].glsl_name = "position";
+            desc.attrs[1].glsl_name = "color0";
+            desc.uniform_blocks[0].stage = SG_SHADERSTAGE_VERTEX;
+            desc.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+            desc.uniform_blocks[0].size = 64;
+            desc.uniform_blocks[0].glsl_uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
+            desc.uniform_blocks[0].glsl_uniforms[0].array_count = 4;
+            desc.uniform_blocks[0].glsl_uniforms[0].glsl_name = "vs_params";
             desc.label = "cube_shader";
         }
         return &desc;
@@ -610,18 +613,20 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
         static bool valid;
         if (!valid) {
             valid = true;
-            desc.attrs[0].sem_name = "TEXCOORD";
-            desc.attrs[0].sem_index = 0;
-            desc.attrs[1].sem_name = "TEXCOORD";
-            desc.attrs[1].sem_index = 1;
-            desc.vs.source = (const char*)vs_source_hlsl5;
-            desc.vs.d3d11_target = "vs_5_0";
-            desc.vs.entry = "main";
-            desc.vs.uniform_blocks[0].size = 64;
-            desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-            desc.fs.source = (const char*)fs_source_hlsl5;
-            desc.fs.d3d11_target = "ps_5_0";
-            desc.fs.entry = "main";
+            desc.vertex_func.source = (const char*)vs_source_hlsl5;
+            desc.vertex_func.d3d11_target = "vs_5_0";
+            desc.vertex_func.entry = "main";
+            desc.fragment_func.source = (const char*)fs_source_hlsl5;
+            desc.fragment_func.d3d11_target = "ps_5_0";
+            desc.fragment_func.entry = "main";
+            desc.attrs[0].hlsl_sem_name = "TEXCOORD";
+            desc.attrs[0].hlsl_sem_index = 0;
+            desc.attrs[1].hlsl_sem_name = "TEXCOORD";
+            desc.attrs[1].hlsl_sem_index = 1;
+            desc.uniform_blocks[0].stage = SG_SHADERSTAGE_VERTEX;
+            desc.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+            desc.uniform_blocks[0].size = 64;
+            desc.uniform_blocks[0].hlsl_register_b_n = 0;
             desc.label = "cube_shader";
         }
         return &desc;
@@ -631,12 +636,14 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
         static bool valid;
         if (!valid) {
             valid = true;
-            desc.vs.source = (const char*)vs_source_metal_macos;
-            desc.vs.entry = "main0";
-            desc.vs.uniform_blocks[0].size = 64;
-            desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-            desc.fs.source = (const char*)fs_source_metal_macos;
-            desc.fs.entry = "main0";
+            desc.vertex_func.source = (const char*)vs_source_metal_macos;
+            desc.vertex_func.entry = "main0";
+            desc.fragment_func.source = (const char*)fs_source_metal_macos;
+            desc.fragment_func.entry = "main0";
+            desc.uniform_blocks[0].stage = SG_SHADERSTAGE_VERTEX;
+            desc.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+            desc.uniform_blocks[0].size = 64;
+            desc.uniform_blocks[0].msl_buffer_n = 0;
             desc.label = "cube_shader";
         }
         return &desc;
@@ -646,12 +653,14 @@ const sg_shader_desc* cube_shader_desc(sg_backend backend) {
         static bool valid;
         if (!valid) {
             valid = true;
-            desc.vs.source = (const char*)vs_source_wgsl;
-            desc.vs.entry = "main";
-            desc.vs.uniform_blocks[0].size = 64;
-            desc.vs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-            desc.fs.source = (const char*)fs_source_wgsl;
-            desc.fs.entry = "main";
+            desc.vertex_func.source = (const char*)vs_source_wgsl;
+            desc.vertex_func.entry = "main";
+            desc.fragment_func.source = (const char*)fs_source_wgsl;
+            desc.fragment_func.entry = "main";
+            desc.uniform_blocks[0].stage = SG_SHADERSTAGE_VERTEX;
+            desc.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+            desc.uniform_blocks[0].size = 64;
+            desc.uniform_blocks[0].wgsl_group0_binding_n = 0;
             desc.label = "cube_shader";
         }
         return &desc;

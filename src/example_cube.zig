@@ -83,8 +83,8 @@ export fn init() void {
 
     const shader = c.sg_make_shader(@ptrCast(glsl.cube_shader_desc(glsl.sg_query_backend())));
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[0].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[1].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[glsl.ATTR_cube_position].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[glsl.ATTR_cube_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
     pipeline_desc.layout.buffers[0].stride = 28;
     pipeline_desc.shader = shader;
     pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
@@ -118,7 +118,7 @@ export fn update() void {
     c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(c.SG_SHADERSTAGE_VS, 0, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(0, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();
