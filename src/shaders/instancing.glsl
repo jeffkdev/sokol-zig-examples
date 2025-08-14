@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------------
 //  shaders for instancing-sapp sample
 //------------------------------------------------------------------------------
-@vs vs
-layout(binding=0) uniform vs_params {
+@vs instancing_vs
+layout(binding=0) uniform instancing_vs_params {
     mat4 mvp;
 };
 
@@ -19,7 +19,7 @@ void main() {
 }
 @end
 
-@fs fs
+@fs instancing_fs
 in vec4 color;
 out vec4 frag_color;
 void main() {
@@ -27,5 +27,5 @@ void main() {
 }
 @end
 
-@program instancing vs fs
+@program instancing instancing_vs instancing_fs
 

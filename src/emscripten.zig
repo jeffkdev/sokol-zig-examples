@@ -49,6 +49,8 @@ pub const LibSokolOptions = struct {
     with_sokol_imgui: bool = false,
 };
 
+//== EMSCRIPTEN INTEGRATION ============================================================================================
+
 // for wasm32-emscripten, need to run the Emscripten linker from the Emscripten SDK
 // NOTE: ideally this would go into a separate emsdk-zig package
 pub const EmLinkOptions = struct {
@@ -61,12 +63,13 @@ pub const EmLinkOptions = struct {
     use_webgpu: bool = false,
     use_webgl2: bool = false,
     use_emmalloc: bool = false,
+    use_offset_converter: bool = false, // needed for @returnAddress builtin used by Zig allocators
     use_filesystem: bool = true,
     shell_file_path: ?Build.LazyPath,
     extra_args: []const []const u8 = &.{},
 };
 pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
-    const emcc_path = emSdkLazyPath(b, options.emsdk, &.{ "upstream", "emscripten", "emcc" }).getPath(b);
+    const emcc_path = emTool(b, options.emsdk, "emcc").getPath(b);
     const emcc = b.addSystemCommand(&.{emcc_path});
     emcc.setName("emcc"); // hide emcc path
     if (options.optimize == .Debug) {
@@ -86,7 +89,7 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
         }
     }
     if (options.use_webgpu) {
-        emcc.addArg("-sUSE_WEBGPU=1");
+        emcc.addArg("--use-port=emdawnwebgpu");
     }
     if (options.use_webgl2) {
         emcc.addArg("-sUSE_WEBGL2=1");
@@ -97,6 +100,9 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
     if (options.use_emmalloc) {
         emcc.addArg("-sMALLOC='emmalloc'");
     }
+    if (options.use_offset_converter) {
+        emcc.addArg("-sUSE_OFFSET_CONVERTER");
+    }
     if (options.shell_file_path) |shell_file_path| {
         emcc.addPrefixedFileArg("--shell-file=", shell_file_path);
     }
@@ -106,20 +112,9 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
 
     // add the main lib, and then scan for library dependencies and add those too
     emcc.addArtifactArg(options.lib_main);
-    var it = options.lib_main.root_module.iterateDependencies(options.lib_main, false);
-    while (it.next()) |item| {
-        for (item.module.link_objects.items) |link_object| {
-            switch (link_object) {
-                .other_step => |compile_step| {
-                    switch (compile_step.kind) {
-                        .lib => {
-                            emcc.addArtifactArg(compile_step);
-                        },
-                        else => {},
-                    }
-                },
-                else => {},
-            }
+    for (options.lib_main.getCompileDependencies(false)) |item| {
+        if (item.kind == .lib) {
+            emcc.addArtifactArg(item);
         }
     }
     emcc.addArg("-o");
@@ -132,9 +127,6 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
         .install_subdir = "web",
     });
     install.step.dependOn(&emcc.step);
-
-    // get the emcc step to run on 'zig build'
-    b.getInstallStep().dependOn(&install.step);
     return install;
 }
 
@@ -145,17 +137,46 @@ pub const EmRunOptions = struct {
     emsdk: *Build.Dependency,
 };
 pub fn emRunStep(b: *Build, options: EmRunOptions) *Build.Step.Run {
-    const emrun_path = b.findProgram(&.{"emrun"}, &.{}) catch emSdkLazyPath(b, options.emsdk, &.{ "upstream", "emscripten", "emrun" }).getPath(b);
+    const emrun_path = emTool(b, options.emsdk, "emrun").getPath(b);
     const emrun = b.addSystemCommand(&.{ emrun_path, b.fmt("{s}/web/{s}.html", .{ b.install_path, options.name }) });
     return emrun;
 }
 
-// helper function to build a LazyPath from the emsdk root and provided path components
-pub fn emSdkLazyPath(b: *Build, emsdk: *Build.Dependency, subPaths: []const []const u8) Build.LazyPath {
-    return emsdk.path(b.pathJoin(subPaths));
+// build a system command step which runs the `embuilder command`
+pub const EmBuilderOptions = struct {
+    port_name: []const u8,
+    lto: bool = false,
+    pic: bool = false,
+    force: bool = false,
+    emsdk: *Build.Dependency,
+};
+pub fn emBuilderStep(b: *Build, options: EmBuilderOptions) *Build.Step.Run {
+    const embuilder_path = emTool(b, options.emsdk, "embuilder").getPath(b);
+    const embuilder = b.addSystemCommand(&.{embuilder_path});
+    if (options.lto) {
+        embuilder.addArg("--lto");
+    }
+    if (options.pic) {
+        embuilder.addArg("--pic");
+    }
+    if (options.force) {
+        embuilder.addArg("--force");
+    }
+    embuilder.addArgs(&.{ "build", options.port_name });
+    return embuilder;
 }
 
-fn createEmsdkStep(b: *Build, emsdk: *Build.Dependency) *Build.Step.Run {
+// helper function to build a LazyPath from the emsdk root and provided path components
+pub fn emSdkLazyPath(b: *Build, emsdk: *Build.Dependency, sub_paths: []const []const u8) Build.LazyPath {
+    return emsdk.path(b.pathJoin(sub_paths));
+}
+
+// helper function to get Emscripten SDK tool path
+pub fn emTool(b: *Build, emsdk: *Build.Dependency, tool: []const u8) Build.LazyPath {
+    return emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", tool });
+}
+
+pub fn createEmsdkStep(b: *Build, emsdk: *Build.Dependency) *Build.Step.Run {
     if (builtin.os.tag == .windows) {
         return b.addSystemCommand(&.{emSdkLazyPath(b, emsdk, &.{"emsdk.bat"}).getPath(b)});
     } else {
@@ -188,54 +209,5 @@ pub fn emSdkSetupStep(b: *Build, emsdk: *Build.Dependency) !?*Build.Step.Run {
         return emsdk_activate;
     } else {
         return null;
-    }
-}
-
-// a separate step to compile shaders, expects the shader compiler in ../sokol-tools-bin/
-// TODO: install sokol-shdc via package manager
-fn buildShaders(b: *Build, target: Build.ResolvedTarget) void {
-    const sokol_tools_bin_dir = "../sokol-tools-bin/bin/";
-    const shaders_dir = "src/examples/shaders/";
-    const shaders = .{
-        "bufferoffsets.glsl",
-        "cube.glsl",
-        "instancing.glsl",
-        "mrt.glsl",
-        "noninterleaved.glsl",
-        "offscreen.glsl",
-        "quad.glsl",
-        "shapes.glsl",
-        "texcube.glsl",
-        "blend.glsl",
-        "vertexpull.glsl",
-        "triangle.glsl",
-    };
-    const optional_shdc: ?[:0]const u8 = comptime switch (builtin.os.tag) {
-        .windows => "win32/sokol-shdc.exe",
-        .linux => "linux/sokol-shdc",
-        .macos => if (builtin.cpu.arch.isX86()) "osx/sokol-shdc" else "osx_arm64/sokol-shdc",
-        else => null,
-    };
-    if (optional_shdc == null) {
-        std.log.warn("unsupported host platform, skipping shader compiler step", .{});
-        return;
-    }
-    const shdc_path = sokol_tools_bin_dir ++ optional_shdc.?;
-    const shdc_step = b.step("shaders", "Compile shaders (needs ../sokol-tools-bin)");
-    const glsl = if (target.result.isDarwin()) "glsl410" else "glsl430";
-    const slang = glsl ++ ":metal_macos:hlsl5:glsl300es:wgsl";
-    inline for (shaders) |shader| {
-        const cmd = b.addSystemCommand(&.{
-            shdc_path,
-            "-i",
-            shaders_dir ++ shader,
-            "-o",
-            shaders_dir ++ shader ++ ".zig",
-            "-l",
-            slang,
-            "-f",
-            "sokol_zig",
-        });
-        shdc_step.dependOn(&cmd.step);
     }
 }

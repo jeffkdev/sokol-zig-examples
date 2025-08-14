@@ -1,11 +1,7 @@
 const std = @import("std");
-const c = @import("c.zig");
+const c = @import("c");
 const Mat4 = @import("math3d.zig").Mat4;
 const Vec3 = @import("math3d.zig").Vec3;
-const glsl = @cImport({
-    @cInclude("sokol/sokol_gfx.h");
-    @cInclude("shaders/cube.glsl.h");
-});
 
 const SampleCount = 4;
 
@@ -81,10 +77,10 @@ export fn init() void {
     buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
-    const shader = c.sg_make_shader(@ptrCast(glsl.cube_shader_desc(glsl.sg_query_backend())));
+    const shader = c.sg_make_shader(@ptrCast(c.cube_shader_desc(c.sg_query_backend())));
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[glsl.ATTR_cube_position].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_cube_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[c.ATTR_cube_position].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[c.ATTR_cube_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
     pipeline_desc.layout.buffers[0].stride = 28;
     pipeline_desc.shader = shader;
     pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
@@ -111,14 +107,14 @@ export fn update() void {
 
     const model = Mat4.mul(rxm, rym);
     var mvp = Mat4.mul(view_proj, model);
-    var vs_params = glsl.vs_params_t{
+    var vs_params = c.cube_vs_params_t{
         .mvp = mvp.toArray(),
     };
 
     c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(0, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(0, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(c.cube_vs_params_t) });
     c.sg_draw(0, 36, 1);
     c.sg_end_pass();
     c.sg_commit();

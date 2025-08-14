@@ -1,5 +1,5 @@
 const std = @import("std");
-const c = @import("c.zig");
+const c = @import("c");
 
 const State = struct {
     pass_action: c.sg_pass_action,
@@ -15,7 +15,10 @@ var display_menu: bool = false;
 var f: f32 = 0.0;
 var clear_color: [3]f32 = .{ 0.2, 0.2, 0.2 };
 
-export fn init() void {
+export fn init_cb() void {
+    init() catch unreachable;
+}
+fn init() !void {
     var desc = std.mem.zeroes(c.sg_desc);
     desc.environment = c.sglue_environment();
     c.sg_setup(&desc);
@@ -25,15 +28,18 @@ export fn init() void {
     c.simgui_setup(&imgui_desc);
 
     state.pass_action.colors[0].load_action = c.SG_LOADACTION_CLEAR;
+
     state.pass_action.colors[0].clear_value = c.sg_color{ .r = clear_color[0], .g = clear_color[1], .b = clear_color[2], .a = 1.0 };
 }
 
 export fn update() void {
-    const width = c.sapp_width();
-    const height = c.sapp_height();
-
     const dt = c.stm_sec(c.stm_laptime(&last_time));
-    c.simgui_new_frame(&c.simgui_frame_desc_t{ .width = width, .height = height, .delta_time = dt, .dpi_scale = 0.0 });
+    c.simgui_new_frame(&.{
+        .width = c.sapp_width(),
+        .height = c.sapp_height(),
+        .delta_time = dt,
+        .dpi_scale = 0,
+    });
 
     c.igText("Hello, world!");
     _ = c.igSliderFloat("float", &f, 0.0, 1.0, "%.3f", 1.0);
@@ -52,15 +58,6 @@ export fn update() void {
         c.igText("Hello");
         c.igEnd();
     }
-    // If you want to try testing in imgui 1.80+, add this block of code:
-    //const ig_context: *c.ImGuiContext = c.igGetCurrentContext();
-    //const window: *c.ImGuiWindow = ig_context.*.CurrentWindow.?;
-    //if (!window.SkipItems) {
-    //    c.igText(
-    //        \\ Translate-c converts c.ImGuiWindow to an opaque type
-    //        \\ in imgui 1.80+ causing this to not compile
-    //    );
-    //}
 
     if (show_test_window) {
         c.igSetNextWindowPos(c.ImVec2{ .x = 460, .y = 20 }, c.ImGuiCond_FirstUseEver, c.ImVec2{ .x = 0, .y = 0 });
@@ -86,7 +83,7 @@ pub fn main() void {
     var app_desc = std.mem.zeroes(c.sapp_desc);
     app_desc.width = 1280;
     app_desc.height = 720;
-    app_desc.init_cb = init;
+    app_desc.init_cb = init_cb;
     app_desc.frame_cb = update;
     app_desc.cleanup_cb = cleanup;
     app_desc.event_cb = event;

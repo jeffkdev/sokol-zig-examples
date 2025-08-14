@@ -1,5 +1,5 @@
-@vs vs
-layout(binding=0) uniform vs_params {
+@vs cube_vs
+layout(binding=0) uniform cube_vs_params {
     mat4 mvp;
 };
 
@@ -14,7 +14,7 @@ void main() {
 }
 @end
 
-@fs fs
+@fs cube_fs
 in vec4 color;
 out vec4 frag_color;
 
@@ -23,4 +23,4 @@ void main() {
 }
 @end
 
-@program cube vs fs
+@program cube cube_vs cube_fs

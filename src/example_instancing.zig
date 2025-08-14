@@ -1,12 +1,9 @@
 const std = @import("std");
-const c = @import("c.zig");
+const c = @import("c");
 const Mat4 = @import("math3d.zig").Mat4;
 const Vec3 = @import("math3d.zig").Vec3;
-const glsl = @cImport({
-    @cInclude("sokol/sokol_gfx.h");
-    @cInclude("shaders/instancing.glsl.h");
-});
-const rand = @import("std").rand;
+
+const rand = @import("std").Random;
 
 const SampleCount = 4;
 const NumParticlesEmittedPerFrame = 10;
@@ -68,13 +65,13 @@ export fn init() void {
     instance_buffer_desc.usage = c.SG_USAGE_STREAM;
     state.main_bindings.vertex_buffers[1] = c.sg_make_buffer(&instance_buffer_desc);
 
-    const shader = c.sg_make_shader(@ptrCast(glsl.instancing_shader_desc(glsl.sg_query_backend())));
+    const shader = c.sg_make_shader(@ptrCast(c.instancing_shader_desc(c.sg_query_backend())));
 
     var pipeline_desc = std.mem.zeroes(c.sg_pipeline_desc);
-    pipeline_desc.layout.attrs[glsl.ATTR_instancing_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_instancing_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
-    pipeline_desc.layout.attrs[glsl.ATTR_instancing_inst_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
-    pipeline_desc.layout.attrs[glsl.ATTR_instancing_inst_pos].buffer_index = 1;
+    pipeline_desc.layout.attrs[c.ATTR_instancing_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[c.ATTR_instancing_color0].format = c.SG_VERTEXFORMAT_FLOAT4;
+    pipeline_desc.layout.attrs[c.ATTR_instancing_inst_pos].format = c.SG_VERTEXFORMAT_FLOAT3;
+    pipeline_desc.layout.attrs[c.ATTR_instancing_inst_pos].buffer_index = 1;
     pipeline_desc.layout.buffers[1].step_func = c.SG_VERTEXSTEP_PER_INSTANCE;
     pipeline_desc.shader = shader;
     pipeline_desc.index_type = c.SG_INDEXTYPE_UINT16;
@@ -134,14 +131,14 @@ export fn update() void {
     const view: Mat4 = Mat4.createLookAt(Vec3.new(0.0, 1.5, 12.0), Vec3.new(0.0, 0.0, 0.0), Vec3.new(0.0, 1.0, 0.0));
     const view_proj = Mat4.mul(proj, view);
     ry += 2.0 / 400.0;
-    var vs_params = glsl.vs_params_t{
+    var vs_params = c.instancing_vs_params_t{
         .mvp = Mat4.mul(view_proj, Mat4.createAngleAxis(Vec3.new(0, 1, 0), ry)).toArray(),
     };
 
     c.sg_begin_pass(&(c.sg_pass){ .action = state.pass_action, .swapchain = c.sglue_swapchain() });
     c.sg_apply_pipeline(state.main_pipeline);
     c.sg_apply_bindings(&state.main_bindings);
-    c.sg_apply_uniforms(glsl.UB_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(glsl.vs_params_t) });
+    c.sg_apply_uniforms(c.UB_instancing_vs_params, &c.sg_range{ .ptr = &vs_params, .size = @sizeOf(c.instancing_vs_params_t) });
     c.sg_draw(0, 24, @intCast(cur_num_particles));
     c.sg_end_pass();
     c.sg_commit();

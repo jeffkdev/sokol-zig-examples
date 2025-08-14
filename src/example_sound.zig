@@ -1,5 +1,5 @@
 const std = @import("std");
-const c = @import("c.zig");
+const c = @import("c");
 
 const NumSamples = 32;
 var pass_action: c.sg_pass_action = undefined;

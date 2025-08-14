@@ -1,4 +1,4 @@
-@vs vs
+@vs triangle_vs
 in vec4 position;
 in vec4 color0;
 out vec4 color;
@@ -8,7 +8,7 @@ void main() {
 }
 @end
 
-@fs fs
+@fs triangle_fs
 in vec4 color;
 out vec4 frag_color;
 void main() {
@@ -16,4 +16,4 @@ void main() {
 }
 @end
 
-@program triangle vs fs
+@program triangle triangle_vs triangle_fs

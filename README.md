@@ -1,6 +1,6 @@
 # sokol-zig-examples
 
-Some of the Sokol examples running in Zig 0.13.0 (June 2024). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
+Some of the Sokol examples running in Zig 0.15.0-dev.1380+e98aeeb73 (August 2025). Intended to be used as a reference or starting point for anyone looking to use Zig make games. Working platforms:
  - Windows (OpenGL)
  - Web (GLES3)
  - MacOS (OpenGL) [Not recently tested, may not work]
@@ -57,9 +57,14 @@ valid files are:
 (plays beeping sound, blank screen)
 
 ## WASM
-All examples should work in the web browser using:
+Most examples should work in the web browser using:
 ```
-zig build -Dtarget=wasm32-emscripten run
+zig build -Dtarget=wasm32-emscripten -Dmain=example_instancing -Doptimize=ReleaseFast run
+```
+Warning (TODO): After updating to Zig 15.0 emscripten had issues running the imgui example. If you comment out the imgui code the other samples will build and run
+```
+sokol-zig-examples\src/cimgui/cimgui.h:7:10: error: 'stdio.h' file not found
+#include <stdio.h>
 ```
 
 This repo shows how to support web assembly builds using the sokol c code directly without the zig wrapper. The code was migrated from https://github.com/floooh/sokol-zig. See the source repo for more details. It will download the emscripten version defined in build.zig.zon automatically so the first compile will take longer.
