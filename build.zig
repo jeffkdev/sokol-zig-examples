@@ -35,7 +35,7 @@ pub fn build(b: *std.Build) anyerror!void {
                     break :blk;
                 }
             }
-            std.debug.panic("Main file '{s}' not found. Use one of the following: {s}", .{ main_file, examples });
+            std.debug.panic("Main file '{s}' not found", .{main_file});
             break :blk;
         }
     }
