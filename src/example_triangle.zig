@@ -7,7 +7,7 @@ const State = struct {
     main_bindings: c.sg_bindings,
 };
 
-var state: State = undefined;
+var state: State = std.mem.zeroes(State);
 
 export fn init_cb() void {
     init() catch unreachable;

@@ -16,7 +16,7 @@ const State = struct {
 };
 var rndgen = rand.DefaultPrng.init(42);
 var ry: f32 = 0.0;
-var state: State = undefined;
+var state: State = std.mem.zeroes(State);
 var cur_num_particles: u32 = 0;
 var pos: [MaxParticles]Vec3 = undefined;
 var vel: [MaxParticles]Vec3 = undefined;
@@ -51,13 +51,13 @@ export fn init() void {
 
     var vertex_buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     vertex_buffer_desc.size = vertices.len * @sizeOf(f32);
-    vertex_buffer_desc.data = .{ .ptr = &vertices[0], .size = vertex_buffer_desc.size };
+    vertex_buffer_desc.data = .{ .ptr = &vertices, .size = vertex_buffer_desc.size };
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&vertex_buffer_desc);
 
     var index_buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     index_buffer_desc.type = c.SG_BUFFERTYPE_INDEXBUFFER;
     index_buffer_desc.size = indices.len * @sizeOf(u16);
-    index_buffer_desc.data = .{ .ptr = &indices[0], .size = index_buffer_desc.size };
+    index_buffer_desc.data = .{ .ptr = &indices, .size = index_buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&index_buffer_desc);
 
     var instance_buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
@@ -123,7 +123,7 @@ export fn update() void {
 
     // update instance data
     c.sg_update_buffer(state.main_bindings.vertex_buffers[1], &c.sg_range{
-        .ptr = &pos[0],
+        .ptr = &pos,
         .size = cur_num_particles * @sizeOf(Vec3),
     });
 

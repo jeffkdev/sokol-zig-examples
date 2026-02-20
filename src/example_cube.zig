@@ -13,7 +13,7 @@ const State = struct {
 
 var rx: f32 = 0.0;
 var ry: f32 = 0.0;
-var state: State = undefined;
+var state: State = std.mem.zeroes(State);
 
 export fn init() void {
     var desc = std.mem.zeroes(c.sg_desc);
@@ -68,13 +68,13 @@ export fn init() void {
 
     var buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.size = vertices.len * @sizeOf(f32);
-    buffer_desc.data = .{ .ptr = &vertices[0], .size = buffer_desc.size };
+    buffer_desc.data = .{ .ptr = &vertices, .size = buffer_desc.size };
     state.main_bindings.vertex_buffers[0] = c.sg_make_buffer(&buffer_desc);
 
     buffer_desc = std.mem.zeroes(c.sg_buffer_desc);
     buffer_desc.type = c.SG_BUFFERTYPE_INDEXBUFFER;
     buffer_desc.size = indices.len * @sizeOf(u16);
-    buffer_desc.data = .{ .ptr = &indices[0], .size = buffer_desc.size };
+    buffer_desc.data = .{ .ptr = &indices, .size = buffer_desc.size };
     state.main_bindings.index_buffer = c.sg_make_buffer(&buffer_desc);
 
     const shader = c.sg_make_shader(@ptrCast(c.cube_shader_desc(c.sg_query_backend())));

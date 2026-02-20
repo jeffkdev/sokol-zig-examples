@@ -103,6 +103,7 @@ fn buildWeb(
     const game = b.addLibrary(
         .{
             .name = name,
+            .linkage = .static,
             .root_module = b.createModule(
                 .{
                     .root_source_file = b.path(root_source_file),
@@ -129,11 +130,6 @@ fn buildWeb(
         .use_filesystem = false,
         .shell_file_path = b.path("src/web/shell.html"),
         .extra_args = &.{
-            // Zig allocators use the @returnAddress builtin, which isn't supported in the Emscripten runtime out of the box
-            // (you'll get a runtime error in the browser's Javascript console looking like this: Cannot use convertFrameToPC
-            // (needed by __builtin_return_address) without -sUSE_OFFSET_CONVERTER. To make it work, do as the error message says,
-            // to add the -sUSE_OFFSET_CONVERTER arg to the Emscripten linker step in your build.zig file:
-            "-sUSE_OFFSET_CONVERTER=1",
             // Allow memory growth
             "-sALLOW_MEMORY_GROWTH=1",
             // 1 MB stack to match windows default
@@ -155,20 +151,39 @@ fn buildSokolModule(b: *std.Build, target: Build.ResolvedTarget, optimize: Optim
         .optimize = optimize,
         .link_libc = true,
     });
+    if (target.result.os.tag == .emscripten) {
+        const emsdk = b.dependency("emsdk", .{});
+        sokol_translate.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "sysroot", "include" }));
+    }
 
     const sokol_module = sokol_translate.createModule();
 
     const render_backend_flag = targetToBackendFlag(target.result);
-    const c_flags = if (target.result.os.tag == .macos) &[_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc", render_backend_flag } else &[_][]const u8{ "-std=c99", render_backend_flag };
+    const emscripten_sys_include: ?[]const u8 = if (target.result.os.tag == .emscripten) blk: {
+        const emsdk = b.dependency("emsdk", .{});
+        const sysroot_include = emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "sysroot", "include" }).getPath(b);
+        break :blk b.fmt("-isystem{s}", .{sysroot_include});
+    } else null;
+
+    const c_flags = if (target.result.os.tag == .macos)
+        &[_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc", render_backend_flag }
+    else if (target.result.os.tag == .emscripten)
+        &[_][]const u8{ "-std=c99", render_backend_flag, emscripten_sys_include.?, "-fno-sanitize=undefined" }
+    else
+        &[_][]const u8{ "-std=c99", render_backend_flag };
+
     sokol_module.addCSourceFile(.{ .file = .{ .src_path = .{ .owner = b, .sub_path = "src/compile_sokol.c" } }, .flags = c_flags });
 
-    const cpp_args = [_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui.cpp"), .flags = &cpp_args });
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_tables.cpp"), .flags = &cpp_args });
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_demo.cpp"), .flags = &cpp_args });
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_draw.cpp"), .flags = &cpp_args });
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_widgets.cpp"), .flags = &cpp_args });
-    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/cimgui.cpp"), .flags = &cpp_args });
+    const cpp_args = if (target.result.os.tag == .emscripten)
+        &[_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics", emscripten_sys_include.?, "-fno-sanitize=undefined" }
+    else
+        &[_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics" };
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui.cpp"), .flags = cpp_args });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_tables.cpp"), .flags = cpp_args });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_demo.cpp"), .flags = cpp_args });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_draw.cpp"), .flags = cpp_args });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/imgui/imgui_widgets.cpp"), .flags = cpp_args });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/cimgui/cimgui.cpp"), .flags = cpp_args });
     return sokol_module;
 }
 
@@ -224,10 +239,12 @@ fn addImports(b: *std.Build, target: Build.ResolvedTarget, exe: *Step.Compile, e
             exe.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "sysroot", "include" }));
         },
         else => {
-            // Not tested
             exe.linkSystemLibrary("GL");
             exe.linkSystemLibrary("GLEW");
-            @panic("OS not supported. Try removing panic in build.zig if you want to test this");
+            exe.linkSystemLibrary("X11");
+            exe.linkSystemLibrary("Xi");
+            exe.linkSystemLibrary("Xcursor");
+            exe.linkSystemLibrary("asound");
         },
     }
 }

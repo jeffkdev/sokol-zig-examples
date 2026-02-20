@@ -63,7 +63,6 @@ pub const EmLinkOptions = struct {
     use_webgpu: bool = false,
     use_webgl2: bool = false,
     use_emmalloc: bool = false,
-    use_offset_converter: bool = false, // needed for @returnAddress builtin used by Zig allocators
     use_filesystem: bool = true,
     shell_file_path: ?Build.LazyPath,
     extra_args: []const []const u8 = &.{},
@@ -73,7 +72,18 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
     const emcc = b.addSystemCommand(&.{emcc_path});
     emcc.setName("emcc"); // hide emcc path
     if (options.optimize == .Debug) {
-        emcc.addArgs(&.{ "-Og", "-sSAFE_HEAP=1", "-sSTACK_OVERFLOW_CHECK=1" });
+        // Original
+        //emcc.addArgs(&.{ "-Og", "-sSAFE_HEAP=1", "-sSTACK_OVERFLOW_CHECK=1" });
+
+        // Additional debug info
+        emcc.addArgs(&.{
+            "-Og",
+            "-g",
+            "-sASSERTIONS=2",
+            "-sSAFE_HEAP=1",
+            "-sSTACK_OVERFLOW_CHECK=1",
+            "--profiling-funcs",
+        });
     } else {
         emcc.addArg("-sASSERTIONS=0");
         if (options.optimize == .ReleaseSmall) {
@@ -99,9 +109,6 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
     }
     if (options.use_emmalloc) {
         emcc.addArg("-sMALLOC='emmalloc'");
-    }
-    if (options.use_offset_converter) {
-        emcc.addArg("-sUSE_OFFSET_CONVERTER");
     }
     if (options.shell_file_path) |shell_file_path| {
         emcc.addPrefixedFileArg("--shell-file=", shell_file_path);
@@ -186,6 +193,15 @@ pub fn createEmsdkStep(b: *Build, emsdk: *Build.Dependency) *Build.Step.Run {
     }
 }
 
+fn fileExists(b: *Build, path: []const u8) !bool {
+    // FIXME: drop support for 0.15.x
+    if (builtin.zig_version.minor > 15) {
+        return !std.meta.isError(std.Io.Dir.cwd().access(b.graph.io, path, .{}));
+    } else {
+        return !std.meta.isError(std.fs.cwd().access(path, .{}));
+    }
+}
+
 // One-time setup of the Emscripten SDK (runs 'emsdk install + activate'). If the
 // SDK had to be setup, a run step will be returned which should be added
 // as dependency to the sokol library (since this needs the emsdk in place),
@@ -199,7 +215,7 @@ pub fn createEmsdkStep(b: *Build, emsdk: *Build.Dependency) *Build.Step.Run {
 // an .emscripten file yet until the one-time setup.
 pub fn emSdkSetupStep(b: *Build, emsdk: *Build.Dependency) !?*Build.Step.Run {
     const dot_emsc_path = emSdkLazyPath(b, emsdk, &.{".emscripten"}).getPath(b);
-    const dot_emsc_exists = !std.meta.isError(std.fs.accessAbsolute(dot_emsc_path, .{}));
+    const dot_emsc_exists = try fileExists(b, dot_emsc_path);
     if (!dot_emsc_exists) {
         const emsdk_install = createEmsdkStep(b, emsdk);
         emsdk_install.addArgs(&.{ "install", "latest" });

@@ -2,7 +2,7 @@ const std = @import("std");
 const c = @import("c");
 
 const NumSamples = 32;
-var pass_action: c.sg_pass_action = undefined;
+var pass_action: c.sg_pass_action = std.mem.zeroes(c.sg_pass_action);
 var sample_pos: usize = 0;
 var samples: [NumSamples]f32 = undefined;
 var even_odd: u32 = 0;
@@ -37,7 +37,7 @@ export fn update() void {
         sample_pos += 1;
         if (sample_pos == NumSamples) {
             sample_pos = 0;
-            _ = c.saudio_push(&samples[0], NumSamples);
+            _ = c.saudio_push(&samples, NumSamples);
         }
         i += 1;
     }

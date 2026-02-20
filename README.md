@@ -57,43 +57,14 @@ valid files are:
 (plays beeping sound, blank screen)
 
 ## WASM
-Most examples should work in the web browser using:
+Can run specific example:
 ```
-zig build -Dtarget=wasm32-emscripten -Dmain=example_instancing -Doptimize=ReleaseFast run
-```
-Warning (TODO): After updating to Zig 15.1 emscripten had issues running the imgui example. If you comment out the imgui code the other samples will build and run
-```
-sokol-zig-examples\src/cimgui/cimgui.h:7:10: error: 'stdio.h' file not found
-#include <stdio.h>
+zig build -Dtarget=wasm32-emscripten -Dmain=example_instancing run
 ```
 
-This repo shows how to support web assembly builds using the sokol c code directly without the zig wrapper. The code was migrated from https://github.com/floooh/sokol-zig. See the source repo for more details. It will download the emscripten version defined in build.zig.zon automatically so the first compile will take longer.
+Note: example_sound requires clicking in the window anywhere before the application is allowed to play sound.
 
-### WASM multi-threading
-
-A multi-threading example is not yet included in this repo, but if you want to support multi-threading you should be able to get it working by adding additional arguments to th emLinkStep:
-```zig
-        // Required for LTO while bug exists: https://github.com/emscripten-core/emscripten/issues/16836
-        "-Wl,-u,_emscripten_run_callback_on_thread",
-        "-pthread",
-        "-satomics=1",
-        // Set to whatever pool size
-        "-sPTHREAD_POOL_SIZE=8",
-        // -pthread + ALLOW_MEMORY_GROWTH may run non-wasm code slowly, see https://github.com/WebAssembly/design/issues/1271
-        "-Wpthreads-mem-growth", 
-```
-
-If you are using the standard thread pool (Pool.zig) in Zig 0.13.0 it will give you an error using `std.Thread.getCpuCount()` on WASM. You can work around this by checking if `@import("builtin").target.isWasm()` and providing an explicit thread pool count and then compiling in release mode so it will be compiled away.
-```zig
-const thread_count = options.n_jobs orelse @max(1, std.Thread.getCpuCount() catch 1);
-```
-
-Then when you compile include atomics in the zig build CPU arguments: `zig build -Dtarget=wasm32-emscripten -Dcpu=bleeding_edge+atomics -Doptimize=ReleaseFast run`
-
-The std.heap.GeneralPurposeAllocator looks like it might have some issues with WASM. Switching to std.heap.c_allocator fixed the issue.
-
-Also if you upload your game to itch.io you will need to enable the `SharedArrayBuffer support` option for multi-threading.
-
+This repo shows how to support web assembly builds using the sokol c code directly without the sokol Zig wrapper. The code was migrated from https://github.com/floooh/sokol-zig. See the source repo for more details. It will download the emscripten version defined in build.zig.zon automatically so the first compile will take longer.
 ## Shaders
 
 The "glsl.h" shader files are generates from the ".glsl" files using. [sokol-shdc](https://github.com/floooh/sokol-tools). Since the glsl.h files are not created automatically when building right now they are checked in as well. If you modify the files, they can be re-generated using the command:

@@ -7,7 +7,7 @@ const State = struct {
     main_bindings: c.sg_bindings,
 };
 
-var state: State = undefined;
+var state: State = std.mem.zeroes(State);
 var last_time: u64 = 0;
 var show_test_window: bool = false;
 var show_another_window: bool = false;
