@@ -168,7 +168,9 @@ fn buildSokolModule(b: *std.Build, target: Build.ResolvedTarget, optimize: Optim
     const c_flags = if (target.result.os.tag == .macos)
         &[_][]const u8{ "-std=c99", "-ObjC", "-fobjc-arc", render_backend_flag }
     else if (target.result.os.tag == .emscripten)
-        &[_][]const u8{ "-std=c99", render_backend_flag, emscripten_sys_include.?, "-fno-sanitize=undefined" }
+        &[_][]const u8{ "-std=gnu99", render_backend_flag, emscripten_sys_include.?, "-fno-sanitize=undefined" }
+    else if (target.result.os.tag == .linux)
+        &[_][]const u8{ "-std=gnu99", render_backend_flag }
     else
         &[_][]const u8{ "-std=c99", render_backend_flag };
 
