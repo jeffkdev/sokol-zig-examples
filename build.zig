@@ -127,7 +127,8 @@ fn buildWeb(
         .emsdk = emsdk,
         .use_webgl2 = true,
         .use_emmalloc = true,
-        .use_filesystem = false,
+        // Zig 16 io changes bring in filesystem code that requires this
+        .use_filesystem = true,
         .shell_file_path = b.path("src/web/shell.html"),
         .extra_args = &.{
             // Allow memory growth
