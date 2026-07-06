@@ -66,13 +66,13 @@ fn buildDefault(
     const file_with_extension = name ++ ".zig";
     const root_source_file = "src/" ++ file_with_extension;
 
-    var exe = b.addExecutable(
+    const exe = b.addExecutable(
         .{ .name = name, .root_module = Module.create(
             b,
             Module.CreateOptions{
                 .root_source_file = b.path(root_source_file),
                 .optimize = optimize,
-                .target = std.Build.resolveTargetQuery(b, std.Target.Query{}),
+                .target = target,
             },
         ) },
     );
@@ -174,7 +174,7 @@ fn buildSokolModule(b: *std.Build, target: Build.ResolvedTarget, optimize: Optim
     else
         &[_][]const u8{ "-std=c99", render_backend_flag };
 
-    sokol_module.addCSourceFile(.{ .file = .{ .src_path = .{ .owner = b, .sub_path = "src/compile_sokol.c" } }, .flags = c_flags });
+    sokol_module.addCSourceFile(.{ .file = b.path("src/compile_sokol.c"), .flags = c_flags });
 
     const cpp_args = if (target.result.os.tag == .emscripten)
         &[_][]const u8{ "-Wno-deprecated-declarations", "-Wno-return-type-c-linkage", "-fno-exceptions", "-fno-threadsafe-statics", emscripten_sys_include.?, "-fno-sanitize=undefined" }
@@ -190,29 +190,28 @@ fn buildSokolModule(b: *std.Build, target: Build.ResolvedTarget, optimize: Optim
 }
 
 fn addImports(b: *std.Build, target: Build.ResolvedTarget, exe: *Step.Compile, emsdk_maybe: ?*Build.Dependency) !void {
-    exe.addIncludePath(b.path("src/"));
+    exe.root_module.addIncludePath(b.path("src/"));
 
-    exe.linkLibC();
+    exe.root_module.link_libc = true;
 
     switch (target.result.os.tag) {
         .windows => {
             //See https://github.com/ziglang/zig/issues/8531 only matters in release mode
-            exe.want_lto = false;
-            exe.linkSystemLibrary("user32");
-            exe.linkSystemLibrary("gdi32");
-            exe.linkSystemLibrary("ole32"); // For Sokol audio
+            exe.root_module.linkSystemLibrary("user32", .{});
+            exe.root_module.linkSystemLibrary("gdi32", .{});
+            exe.root_module.linkSystemLibrary("ole32", .{}); // For Sokol audio
         },
         .macos => {
-            exe.linkFramework("Foundation");
-            exe.linkFramework("Cocoa");
-            exe.linkFramework("Quartz");
-            exe.linkFramework("QuartzCore");
-            exe.linkFramework("Metal");
-            exe.linkFramework("MetalKit");
-            exe.linkFramework("OpenGL");
-            exe.linkFramework("Audiotoolbox");
-            exe.linkFramework("CoreAudio");
-            exe.linkSystemLibrary("c++");
+            exe.root_module.linkFramework("Foundation", .{});
+            exe.root_module.linkFramework("Cocoa", .{});
+            exe.root_module.linkFramework("Quartz", .{});
+            exe.root_module.linkFramework("QuartzCore", .{});
+            exe.root_module.linkFramework("Metal", .{});
+            exe.root_module.linkFramework("MetalKit", .{});
+            exe.root_module.linkFramework("OpenGL", .{});
+            exe.root_module.linkFramework("Audiotoolbox", .{});
+            exe.root_module.linkFramework("CoreAudio", .{});
+            exe.root_module.linkSystemLibrary("c++", .{});
         },
         .emscripten => {
             const emsdk = emsdk_maybe.?;
@@ -230,7 +229,7 @@ fn addImports(b: *std.Build, target: Build.ResolvedTarget, exe: *Step.Compile, e
                 }
                 exe.step.dependOn(&embuilder_step.step);
                 // need to add include path to find emdawnwebgpu <webgpu/webgpu.h> before Emscripten SDK webgpu.h
-                exe.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "ports", "emdawnwebgpu", "emdawnwebgpu_pkg", "webgpu", "include" }));
+                exe.root_module.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "ports", "emdawnwebgpu", "emdawnwebgpu_pkg", "webgpu", "include" }));
             } else {
                 if (opt_emsdk_setup_step) |emsdk_setup_step| {
                     exe.step.dependOn(&emsdk_setup_step.step);
@@ -238,15 +237,15 @@ fn addImports(b: *std.Build, target: Build.ResolvedTarget, exe: *Step.Compile, e
             }
 
             // add the Emscripten system include seach path
-            exe.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "sysroot", "include" }));
+            exe.root_module.addSystemIncludePath(emscripten.emSdkLazyPath(b, emsdk, &.{ "upstream", "emscripten", "cache", "sysroot", "include" }));
         },
         else => {
-            exe.linkSystemLibrary("GL");
-            exe.linkSystemLibrary("GLEW");
-            exe.linkSystemLibrary("X11");
-            exe.linkSystemLibrary("Xi");
-            exe.linkSystemLibrary("Xcursor");
-            exe.linkSystemLibrary("asound");
+            exe.root_module.linkSystemLibrary("GL", .{});
+            exe.root_module.linkSystemLibrary("GLEW", .{});
+            exe.root_module.linkSystemLibrary("X11", .{});
+            exe.root_module.linkSystemLibrary("Xi", .{});
+            exe.root_module.linkSystemLibrary("Xcursor", .{});
+            exe.root_module.linkSystemLibrary("asound", .{});
         },
     }
 }
